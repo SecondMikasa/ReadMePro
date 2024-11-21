@@ -41,7 +41,7 @@ const Header = () => {
 
                     {/* Mobile Menu Button Baad me Dekhenge */}
                     <button
-                        className="md:hidden flex items-center text-green-400 focus:outline-none"
+                        className="xl:hidden lg:hidden md:hidden flex items-center text-green-400 focus:outline-none"
                         aria-label="Toggle Navigation"
                     >
                         <Menu className=""/>

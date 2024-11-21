@@ -8,7 +8,7 @@ import Close from '@/app/_components/icons/close'
 import Menu from '@/app/_components/icons/menu'
 
 const Navbar = ({
-    selelctedSectionSlugs,
+    selectedSectionSlugs,
     setShowModal,
     getTemplate,
     onMenuClick,
@@ -17,7 +17,7 @@ const Navbar = ({
 
     const { isMobile } = useDeviceDetect()
 
-    const markdown = selelctedSectionSlugs?.reduce((acc, section) => {
+    const markdown = selectedSectionSlugs?.reduce((acc, section) => {
         const template = getTemplate(section)
         if (template) {
             return `${acc}${template?.markdown}`
@@ -34,10 +34,10 @@ const Navbar = ({
         a.href = URL.createObjectURL(blob);
         a.download = "README.md";
         a.click();
-        if (isMobile && isDrawerOpen) {
-            onMenuClick()
-        }
-        setShowModal(true)
+        // if (isMobile && isDrawerOpen) {
+        //     onMenuClick()
+        // }
+        // setShowModal(true)
     }
 
     return (
@@ -56,7 +56,7 @@ const Navbar = ({
 
 
                 <div className='flex flex-row-reverse gap-5 md:flex-row'>
-                    <button className='focus:outline-none focus:ring-2 focus:ring-green-400' onClick={onMenuClick}>
+                    {/* <button className='focus:outline-none focus:ring-2 focus:ring-green-400' onClick={onMenuClick}>
                         {isDrawerOpen ? (
                             <Close className="w-10 h-10 md:hidden fill-current text-green-500" />
                         )
@@ -64,7 +64,7 @@ const Navbar = ({
                             (
                                 <Menu className="w-10 h-10 md:hidden fill-current text-green-500" />
                             )}
-                    </button>
+                    </button> */}
                     <button type='button' className='px-4 py-2 flex bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition' onClick={downloadMarkdownFile}>
                         <img className='w-auto h-6 cursor-pointer' src="./download.svg" alt="Download Button" />
                         <span className='hidden md:inline-block ml-2'>
