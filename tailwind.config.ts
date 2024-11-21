@@ -1,5 +1,7 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+import type { Config } from "tailwindcss";
+
+
+export default {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -13,5 +15,7 @@ module.exports = {
       },
     },
   },
-  plugins: [],
-};
+  plugins: [
+    require('@nauverse/tailwind-dot-grid-backgrounds')
+  ],
+} satisfies Config;
