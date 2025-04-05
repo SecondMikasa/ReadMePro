@@ -64,7 +64,10 @@ const Navbar = ({
 
                 <div className='flex flex-row-reverse gap-5 md:flex-row'>
                     <button type='button' className='px-4 py-2 flex bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition' onClick={downloadMarkdownFile}>
-                        <img className='w-auto h-6 cursor-pointer' src="./download.svg" alt="Download Button" />
+                        <img
+                            className='w-auto h-6 cursor-pointer'
+                            src="./download.svg"
+                            alt="Download Button" />
                         <span className='hidden md:inline-block ml-2'>
                             Download
                         </span>
