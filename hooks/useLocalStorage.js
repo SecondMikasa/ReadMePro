@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 
+import { toast } from 'sonner'
+
 const useLocalStorage = () => {
     const [backup, setBackup] = useState(null)
     const [timer, setTimer] = useState(null)
@@ -12,18 +14,18 @@ const useLocalStorage = () => {
         }
     }, [])
 
-    const saveBackup = (template) => {
+    const saveBackup = (templates) => {
         try {
             if (timer) {
                 clearTimeout(timer)
             } 
             setTimer(
                 setTimeout(() => {
-                    localStorage.setItem("readme-backup", JSON.stringify(template))
+                    localStorage.setItem("readme-backup", JSON.stringify(templates))
                 }, 1000)
             )
         } catch (error) {
-            console.log("Failed to create local backup")
+            toast.error("Failed to create local backup", error)
         }
     }
     
@@ -31,11 +33,11 @@ const useLocalStorage = () => {
         try {
             localStorage.removeItem("readme-backup")
         } catch (error) {
-            console.log("Failed to delete local backup")
+            toast.error("Failed to delete local backup", error)
         }
     }
 
-    return (backup, saveBackup, deleteBackup)
+    return { backup, saveBackup, deleteBackup }
 }
 
 export default useLocalStorage

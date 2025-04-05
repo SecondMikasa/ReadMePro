@@ -2,18 +2,20 @@
 import { useEffect, useState } from 'react'
 
 import { SectionTemplates } from '@/data/section-template'
-import useLocalStorage from '@/hooks/useLocalStorage'
-import Navbar from '@/app/_components/editor/Navbar'
-import DownloadModal from '@/app/_components/download-modal'
 
-import Head from 'next/head';
+import useLocalStorage from '@/hooks/useLocalStorage'
+
+import Navbar from '@/app/_components/editor/Navbar'
+
+import DownloadModal from '@/app/_components/editor/download-modal'
+import { cn } from '@/lib/utils'
 
 const page = () => {
 
   const [markdown, setMarkdown] = useState("");
   const [selectedSectionSlugs, setSelectedSectionSlugs] = useState([]);
   const [sectionSLugs, setSectionSLugs] = useState(
-    SectionTemplates.map((t) => t.slug)
+    SectionTemplates.map((sectionTemplate) => sectionTemplate.slug)
   );
   const [focusedSectionSlug, setFocusedSectionSlug] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -29,29 +31,38 @@ const page = () => {
   }, [backup])
 
   const getTemplate = (slug) => {
-    return templates.find((t) => t.slug === slug)
+    return templates.find((template) => template.slug === slug)
   }
 
   // Focused Section Template should be set to null every time page refrehes
   useEffect(() => {
     setFocusedSectionSlug(null)
-  }, [])
+  })
 
   //Keep track of which templates are selected
   useEffect(() => {
-    let currentSlugList = JSON.parse(localStorage.getItem("current-slug-list")) || [];
-    const hasTitleAndDescription = currentSlugList.includes("title-and-description");
 
-    if (!hasTitleAndDescription && selectedSectionSlugs.includes("title-and-description")) {
-      selectedSectionSlugs = selectedSectionSlugs.filter((slug) => slug !== "title-and-description");
+    // Safely retrieve stored slugs
+    const storedSlugsString = localStorage.getItem("current-slug-list")
+    const storedSlugs = storedSlugsString ? storedSlugsString.split(",") : []
+  
+    // Check if "title-and-description" exists in stored list
+    const hasTitleAndDescription = storedSlugs.includes("title-and-description")
+  
+    // If stored list lacks it but current state has it, remove it
+    if (!hasTitleAndDescription &&
+      selectedSectionSlugs.includes("title-and-description")
+    ) {
+      setSelectedSectionSlugs(prev => prev.filter(slug => slug !== "title-and-description"))
     }
-
-    setFocusedSectionSlug(localStorage.getItem("current-slug-list").split(",")[0])
-
-    localStorage.setItem("current-slug-list", focusedSectionSlug)
+  
+    // Update focused slug from stored list or current state
+    const focusedSlug = storedSlugs[0] || null
+    setFocusedSectionSlug(focusedSlug)
+  
+    // Store the current selectedSectionSlugs in localStorage
+    localStorage.setItem("current-slug-list", selectedSectionSlugs.join(","));
   }, [selectedSectionSlugs])
-
-  const drawerClass = showDrawer ? "" : "-translate-x-full md:transform-none"
 
   return (
     <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950'>
@@ -63,13 +74,23 @@ const page = () => {
         isDrawerOpen={showDrawer}
       />
 
-      {showModal && <DownloadModal setShowModal={setShowModal} />}
+      {
+        showModal &&
+        <DownloadModal
+          setShowModal={setShowModal}
+        />
+      }
 
       <div className='flex md:px-6 md:pt-6'>
-        <div className={`flex flex-0 text-white drawer-height absolute md:static p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0 transform transition-transform duration-500 ease-in-out ${drawerClass}`}>
+        <div className={
+          cn(
+            "flex flex-0 text-white drawer-height absolute md:static p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0 transform transition-transform duration-500 ease-in-out",
+            showDrawer ? "" : "-translate-x-full md:transform-none"
+          )
+        }>
           Sections Column
         </div>
-        Edit
+        {/* Edit Preview Container */}
       </div>
     </div>
   )

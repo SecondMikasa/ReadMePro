@@ -45,22 +45,6 @@ const DownloadModal = ({ setShowModal }) => {
                     >
                         README Generated Successfully!
                     </h3>
-                    <p
-                        id="modal-description"
-                        className="text-base text-gray-300 mb-6"
-                    >
-                        Thank you for using this tool! If you have any feedback, feel free
-                        to reach out at{' '}
-                        <a
-                            href="mailto:kumarnarmin1@vivaldi.net"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-green-400 hover:underline"
-                        >
-                            kumarnarmin1@vivaldi.net
-                        </a>
-                        .
-                    </p>
                     <button
                         onClick={() => setShowModal(false)}
                         className="bg-green-500 hover:bg-green-600 transition-colors text-white font-medium py-3 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
