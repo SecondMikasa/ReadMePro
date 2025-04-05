@@ -40,10 +40,10 @@ const page = () => {
   //Keep track of which templates are selected
   useEffect(() => {
     let currentSlugList = JSON.parse(localStorage.getItem("current-slug-list")) || [];
-    const hasTitleAndDescription = currentSlugList.includes("title-and-description"); 
+    const hasTitleAndDescription = currentSlugList.includes("title-and-description");
 
     if (!hasTitleAndDescription && selectedSectionSlugs.includes("title-and-description")) {
-      selectedSectionSlugs = selectedSectionSlugs.filter((slug) => slug !== "title-and-description");  
+      selectedSectionSlugs = selectedSectionSlugs.filter((slug) => slug !== "title-and-description");
     }
 
     setFocusedSectionSlug(localStorage.getItem("current-slug-list").split(",")[0])
@@ -55,20 +55,21 @@ const page = () => {
 
   return (
     <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950'>
-        <Navbar
-          selectedSectionSlugs={selectedSectionSlugs}
-          setShowModal={setShowModal}
-          getTemplate={getTemplate}
-          onMenuClick={() => setShowDrawer(!showDrawer)}
-          isDrawerOpen={showDrawer}
+      <Navbar
+        selectedSectionSlugs={selectedSectionSlugs}
+        setShowModal={setShowModal}
+        getTemplate={getTemplate}
+        onMenuClick={() => setShowDrawer(!showDrawer)}
+        isDrawerOpen={showDrawer}
       />
-      
+
       {showModal && <DownloadModal setShowModal={setShowModal} />}
 
       <div className='flex md:px-6 md:pt-6'>
         <div className={`flex flex-0 text-white drawer-height absolute md:static p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0 transform transition-transform duration-500 ease-in-out ${drawerClass}`}>
           Sections Column
         </div>
+        Edit
       </div>
     </div>
   )

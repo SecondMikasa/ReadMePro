@@ -7,7 +7,14 @@ const Footer = () => {
         {/* Left Section */}
         <div className="mb-4 md:mb-0">
           <p className="text-center md:text-left">
-            Made With ❤️ By <span className="hover:text-green-400 font-semibold">Kumar Arnim</span>
+            Made With ❤️ By &nbsp;
+            <span className="hover:text-green-400 font-semibold">
+              <Link
+                href="https://arnimfolio.vercel.app/"
+              >
+                Kumar Arnim
+              </Link>
+            </span>
           </p>
         </div>
 
@@ -16,7 +23,7 @@ const Footer = () => {
           <p>
             Star this project at{' '}
             <a
-              href="https://github.com/your-repo-link" // Replace with your GitHub repository link
+              href="https://github.com/SecondMikasa/ReadMePro"
               target="_blank"
               rel="noopener noreferrer"
               className="text-green-400 hover:underline"
