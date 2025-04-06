@@ -1,6 +1,8 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities"
 
+import { cn } from "@/lib/utils";
+
 const SortableItem = (props) => {
     const {
         attributes,
@@ -17,7 +19,7 @@ const SortableItem = (props) => {
 
     const onClickSection = () => {
         localStorage.setItem("current-focused-ring", props.id)
-        props.setFocusedSectionSLug(props.id)
+        props.setFocusedSectionSlug(props.id)
     }
 
     const onKeyUp = (e) => {
@@ -45,52 +47,55 @@ const SortableItem = (props) => {
             {...attributes}
             onClick={onClickSection}
             onKeyUp={onKeyUp}
-            className={
-                cn(
-                    "bg-white shadow rounded-md pl-1 pr-14 py-2 flex items-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 relative select-none",
-                    props?.section?.slug === props.focusesSectionSlug ?
-                        "ring-2 ring-green-400"
-                        :
-                        ""
-                )
-            }
+            className={cn(
+                "bg-white shadow rounded-md px-4 py-2 flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 relative select-none mx-0 group",
+                props?.section?.slug === props.focusedSectionSlug
+                    ? "ring-2 ring-green-400"
+                    : ""
+            )}
         >
-            <button
-                type="button"
-                className="mr-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
-                {...listeners}
-            >
-                <img
-                    className="w-5 h-5"
-                    src="./draw.svg"
-                />
-            </button>
-            <p>
-                {props?.section?.name}
-            </p>
-            {props?.section?.slug === props.focusesSectionSlug && (
-                <>
+            <div className="flex items-center flex-grow min-w-0">
+                <button
+                    type="button"
+                    className="mr-3 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
+                    {...listeners}
+                >
+                    <img
+                        className="w-5 h-5"
+                        src="./drag.svg"
+                        alt="Drag handle"
+                    />
+                </button>
+                <p className="text-gray-800 truncate font-medium">
+                    {props?.section?.name}
+                </p>
+            </div>
+
+            {props?.section?.slug === props.focusedSectionSlug && (
+                <div className="flex items-center gap-3 ml-4">
                     <button
                         type="button"
-                        className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 absolute right-8"
-                        onClick={onClickReset}>
+                        className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
+                        onClick={onClickReset}
+                    >
                         <img
-                            className="w-5 h-5"
+                            className="w-5 h-5 hover:opacity-70 transition-opacity"
                             src="./reset.svg"
                             alt="Reset Icon"
                         />
                     </button>
                     <button
                         type="button"
-                        className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 absolute right-2"
+                        className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
                         onClick={onClickTrash}
                     >
                         <img
-                            className="w-5 h-5"
-                            src="./delete.svg" alt="Trash Icon"
+                            className="w-5 h-5 hover:opacity-70 transition-opacity"
+                            src="./delete.svg"
+                            alt="Trash Icon"
                         />
                     </button>
-                </>
+                </div>
             )}
         </li>
     )

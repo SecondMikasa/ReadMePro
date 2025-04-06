@@ -71,7 +71,7 @@ const CustomSection = ({
                             leaveTo="opacity-0"
                         >
                             <DialogBackdrop
-                                className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                                className="fixed inset-0 bg--500 bg-opacity-75 transition-opacity"
                             />
                         </TransitionChild>
                         <span
@@ -97,7 +97,7 @@ const CustomSection = ({
                                 >
                                     <DialogTitle
                                         as="h3"
-                                        className="text-lg leading-6 font-medium text-gray-900"
+                                        className="text-lg leading-6 font-medium text--900"
                                     >
                                         New Custom Section
                                     </DialogTitle>
@@ -110,7 +110,7 @@ const CustomSection = ({
                                             name="Title"
                                             id="title"
                                             onChange={(e) => setTitle(e.target.value)}
-                                            className="shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-green-400 block w-full sm:text-sm border-gray-300 rounded-md"
+                                            className="shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-green-400 block w-full sm:text-sm border--300 rounded-md"
                                             placeholder="Section Title"
                                         />
                                     </div>
@@ -127,7 +127,7 @@ const CustomSection = ({
                                     </button>
                                     <button
                                         type="button"
-                                        className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 sm:mt-0 sm:col-start-1 sm:text-sm"
+                                        className="mt-3 w-full inline-flex justify-center rounded-md border border--300 shadow-sm px-4 py-2 bg-white text-base font-medium text--700 hover:bg--50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 sm:mt-0 sm:col-start-1 sm:text-sm"
                                         onClick={() => setShowModal(false)}
                                     >
                                         Cancel
@@ -141,15 +141,12 @@ const CustomSection = ({
 
             <div className="mb-3">
                 <button
-                    className="flex items-center justify-center w-full h-full py-2 pl-3 pr-6 bg-white font-bold rounded-md shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-of focus:ring-green-400"
+                    className="flex items-center justify-center w-full h-full py-2 pl-3 pr-6 bg-white font-semibold rounded-md shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400 hover:bg-gray-50 transition-colors duration-200"
                     type="button"
                     onClick={() => setShowModal(true)}
                 >
-                    <img
-                        className="w-5 h-5"
-                        src="./plus.svg"
-                    />
-                    <span className="ml-1">
+                    <img className="w-5 h-5" src="./plus.svg" />
+                    <span className="ml-2 text-gray-800">
                         Custom Section
                     </span>
                 </button>
