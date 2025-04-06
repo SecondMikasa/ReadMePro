@@ -7,6 +7,8 @@ import useLocalStorage from '@/hooks/useLocalStorage'
 
 import Navbar from '@/app/_components/editor/Navbar'
 
+import SectionColumn from '@/app/_components/editor/section-column'
+
 import DownloadModal from '@/app/_components/editor/download-modal'
 import { cn } from '@/lib/utils'
 
@@ -14,7 +16,7 @@ const page = () => {
 
   const [markdown, setMarkdown] = useState("");
   const [selectedSectionSlugs, setSelectedSectionSlugs] = useState([]);
-  const [sectionSLugs, setSectionSLugs] = useState(
+  const [sectionSlugs, setSectionSlugs] = useState(
     SectionTemplates.map((sectionTemplate) => sectionTemplate.slug)
   );
   const [focusedSectionSlug, setFocusedSectionSlug] = useState(null);
@@ -88,7 +90,18 @@ const page = () => {
             showDrawer ? "" : "-translate-x-full md:transform-none"
           )
         }>
-          Sections Column
+          <SectionColumn
+            selectedSectionSlugs={selectedSectionSlugs}
+            setSelectedSectionSlugs={setSelectedSectionSlugs}
+            sectionSlugs={sectionSlugs}
+            setSectionSlugs={setSectionSlugs}
+            setFocusedSectionSlug={setFocusedSectionSlug}
+            focusesSectionSlug={focusedSectionSlug}
+            templates={templates}
+            originalTemplate={SectionTemplates}
+            setTemplates={setTemplates}
+            getTemplate={getTemplate}
+          />
         </div>
         {/* Edit Preview Container */}
       </div>

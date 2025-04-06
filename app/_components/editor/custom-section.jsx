@@ -139,16 +139,19 @@ const CustomSection = ({
                 </Dialog>
             </Transition>
 
-            <div>
+            <div className="mb-3">
                 <button
                     className="flex items-center justify-center w-full h-full py-2 pl-3 pr-6 bg-white font-bold rounded-md shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-of focus:ring-green-400"
                     type="button"
                     onClick={() => setShowModal(true)}
                 >
                     <img
-                    className="w-5 h-5"
-                    src="./plus.svg"
-                />
+                        className="w-5 h-5"
+                        src="./plus.svg"
+                    />
+                    <span className="ml-1">
+                        Custom Section
+                    </span>
                 </button>
             </div >
         </>
