@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 
 const useLocalStorage = () => {
     const [backup, setBackup] = useState(null)
+    // Used for debouncing writes to localStorage
     const [timer, setTimer] = useState(null)
     
     const BACKUP_KEY = "readme-backup"
