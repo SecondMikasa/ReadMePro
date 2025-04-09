@@ -55,38 +55,37 @@ const SectionColumn = ({
 
     const [pageRefreshed, setPageRefreshed] = useState(false)
     const [addAction, setAddAction] = useState(false)
-    const [currentSlugList, setCurrentSlugList] = useState([])
     const [slugsFromPreviousSession, setSlugsFromPreviousSession] = useState([])
 
-    const { backup, saveBackup, deleteBackup, getBackup } = useLocalStorage()
+    const { saveBackup, deleteBackup, getBackup } = useLocalStorage()
 
     let alphabetizedSectionSlugs = sectionSlugs.sort()
 
     useEffect(() => {
         // Check for backup templates first
-        const backupTemplates = getBackup();
+        const backupTemplates = getBackup()
         if (backupTemplates && backupTemplates.length > 0) {
-            setTemplates(backupTemplates);
+            setTemplates(backupTemplates)
         }
-        
+
         // Then load section data
         const storedSlugs = localStorage.getItem("current-slug-list");
         if (storedSlugs) {
             const slugsArray = storedSlugs.split(",");
             setSelectedSectionSlugs(slugsArray);
-            
+
             // Get focused slug or default to first section
             const storedFocusedSlug = localStorage.getItem("current-focused-slug");
-            const focusedSlug = storedFocusedSlug && storedFocusedSlug !== "noEdit" 
-                ? storedFocusedSlug 
+            const focusedSlug = storedFocusedSlug && storedFocusedSlug !== "noEdit"
+                ? storedFocusedSlug
                 : slugsArray[0];
-            
+
             setFocusedSectionSlug(focusedSlug);
             setPageRefreshed(true);
-            
+
             // Update available slugs - make sure to get ALL possible section slugs
             const allPossibleSlugs = [...SectionTemplates.map(t => t.slug)];
-            
+
             // Add any custom sections from templates
             if (backupTemplates) {
                 backupTemplates.forEach(template => {
@@ -95,17 +94,17 @@ const SectionColumn = ({
                     }
                 });
             }
-            
+
             // Filter out the selected ones
             setSectionSlugs(allPossibleSlugs.filter(s => !slugsArray.includes(s)));
         }
-    }, []);
+    }, [])
 
     // Persist changes to localStorage
     useEffect(() => {
         if (selectedSectionSlugs.length > 0 && pageRefreshed) {
             localStorage.setItem("current-slug-list", selectedSectionSlugs.join(","));
-            
+
             if (focusedSectionSlug) {
                 localStorage.setItem("current-focused-slug", focusedSectionSlug);
             }
@@ -140,14 +139,14 @@ const SectionColumn = ({
 
     const onDeleteSection = (e, sectionSlug) => {
         e.stopPropagation()
-        
+
         // First update the selected sections
         const updatedSections = selectedSectionSlugs.filter(s => s !== sectionSlug);
         setSelectedSectionSlugs(updatedSections);
-        
+
         // Add it back to available sections
         setSectionSlugs(prev => [...prev, sectionSlug]);
-        
+
         // Handle focused section updates
         if (focusedSectionSlug === sectionSlug) {
             if (updatedSections.length > 0) {
@@ -194,16 +193,16 @@ const SectionColumn = ({
 
         if (sectionResetConfirmed) {
             const currentSections = [...selectedSectionSlugs];
-            
+
             // Keep only title-and-description in selected sections
             setSelectedSectionSlugs(["title-and-description"]);
-            
+
             // Move all other sections (except title-and-description) to available sections
             setSectionSlugs(prev => [
-                ...prev, 
+                ...prev,
                 ...currentSections.filter(s => s !== "title-and-description")
             ]);
-            
+
             // Focus on title-and-description section
             setFocusedSectionSlug("title-and-description");
 
