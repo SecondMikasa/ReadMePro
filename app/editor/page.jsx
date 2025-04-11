@@ -15,6 +15,8 @@ import Navbar from '@/app/_components/editor/Navbar'
 import SectionColumn from '@/app/_components/editor/section-column'
 import DownloadModal from '@/app/_components/editor/download-modal'
 
+import {Loader} from '@/app/_components/Loader'
+
 import { cn } from '@/lib/utils'
 
 import { toast } from 'sonner'
@@ -248,10 +250,8 @@ const Page = () => {
 
     if (!isInitialized) {
         return (
-            <div className="w-screen h-screen bg-[#1b1d1e] flex items-center justify-center text-white">
-                Loading Editor...
-            </div>
-        );
+                <Loader />
+        )
     }
 
     return (

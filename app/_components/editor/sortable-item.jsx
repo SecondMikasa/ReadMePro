@@ -4,7 +4,14 @@ import { CSS } from "@dnd-kit/utilities"
 import { cn } from "@/lib/utils"
 
 const SortableItem = (props) => {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition
+    } = useSortable({
         id: props.id,
     });
 
