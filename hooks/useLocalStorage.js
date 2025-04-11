@@ -1,63 +1,100 @@
-import { useState, useEffect } from 'react'
+import {
+    useState,
+    useEffect,
+    useCallback,
+    useRef
+} from 'react'
+
 import { toast } from 'sonner'
 
+const TEMPLATE_BACKUP_KEY = "readme-template-backup"
+
 const useLocalStorage = () => {
-    const [backup, setBackup] = useState(null)
-    // Used for debouncing writes to localStorage
-    const [timer, setTimer] = useState(null)
+    // Initialize state to undefined to clearly indicate "loading" vs "loaded null" vs "loaded data"
+    const [templateBackup, setTemplateBackup] = useState(undefined)
 
-    const BACKUP_KEY = "readme-backup"
+    // Ref to prevent updates triggered by the hook's own initial setting
+    const initialLoadDone = useRef(false)
 
+    // Effect 1: Load initial backup from localStorage once on mounting
     useEffect(() => {
-        const localBackup = localStorage.getItem(BACKUP_KEY)
 
-        if (localBackup) {
-            try {
-                setBackup(JSON.parse(localBackup))
-            } catch (error) {
-                toast.error("Failed to parse local backup", error)
-            }
-        }
-    }, [])
+        console.log("useLocalStorage Mount Effect: Reading from localStorage...")
 
-    const saveBackup = (templates) => {
+        let loadedData = null // Start with null assumption
+
         try {
-            localStorage.setItem(BACKUP_KEY, JSON.stringify(templates))
-        } catch (error) {
-            toast.error("Failed to create local backup", error)
-        }
-    }
 
-    const getBackup = () => {
-        try {
-            // First try to use the in-memory backup if available
-            if (backup) {
-                return backup
-            }
+            const localBackup = localStorage.getItem(TEMPLATE_BACKUP_KEY)
 
-            // Otherwise try to get from localStorage
-            const localBackup = localStorage.getItem(BACKUP_KEY)
             if (localBackup) {
-                return JSON.parse(localBackup)
+                console.log("useLocalStorage Mount Effect: Found backup string:", localBackup)
+                loadedData = JSON.parse(localBackup)
+                // Validate that it's an array (adjust if other types are valid)
+                if (!Array.isArray(loadedData)) {
+                    console.warn("useLocalStorage Mount Effect: Backup is not an array. Discarding.")
+                    toast.warning("Stored template data was invalid. Resetting.", { duration: 5000 })
+                    localStorage.removeItem(TEMPLATE_BACKUP_KEY)
+                    loadedData = null // Reset to null if invalid
+                } else {
+                    console.log("useLocalStorage Mount Effect: Successfully parsed backup:", loadedData)
+                }
+            } else {
+                console.log("useLocalStorage Mount Effect: No backup found.")
+                loadedData = null // Explicitly null if not found
             }
 
-            return null
-        } catch (error) {
-            toast.error("Failed to retrieve local backup", error)
-            return null
         }
-    }
+        catch (error) {
+            console.error("useLocalStorage Mount Effect: Failed to parse backup:", error)
+            toast.error("Failed to load template data. Resetting.", { description: error.message })
+            localStorage.removeItem(TEMPLATE_BACKUP_KEY) // Clear corrupted data
+            loadedData = null // Reset to null on error
+        }
+        finally {
+            // Set state only ONCE after all checks
+            setTemplateBackup(loadedData)
+            initialLoadDone.current = true
+            console.log("useLocalStorage Mount Effect: Initial load complete. State set to:", loadedData)
+        }
+    }, []) // Empty dependency array ensures this runs only once on mount
 
-    const deleteBackup = () => {
+    // Memoized function to save data passed to it
+    const saveTemplateBackup = useCallback((templatesToSave) => {
+        // Optional: Could add a check here to prevent saving if templatesToSave is deeply equal to current templateBackup
+        // but this can be complex. Let's rely on the caller to be smart for now.
+        if (!initialLoadDone.current) {
+            console.warn("useLocalStorage: Save called before initial load finished. Skipping.")
+            return // Avoid saving during initial render cycles
+        }
         try {
-            localStorage.removeItem(BACKUP_KEY)
-            setBackup(null)
+            console.log("useLocalStorage: Saving template backup:", templatesToSave)
+            const dataToSave = JSON.stringify(templatesToSave)
+            localStorage.setItem(TEMPLATE_BACKUP_KEY, dataToSave)
+            // DO NOT call setTemplateBackup here - this function's job is ONLY to save.
+            // The Page component manages the 'templates' state that triggers this save.
         } catch (error) {
-            toast.error("Failed to delete local backup", error)
+            console.error("useLocalStorage: Failed to save template backup:", error)
+            toast.error("Failed to save template changes", { description: error.message })
         }
-    }
+    }, []) // Empty dependency, function reference is stable
 
-    return { backup, saveBackup, getBackup, deleteBackup }
+    // Memoized function to delete data
+    const deleteTemplateBackup = useCallback(() => {
+        try {
+            console.log("useLocalStorage: Deleting template backup...")
+            localStorage.removeItem(TEMPLATE_BACKUP_KEY)
+            // Update the internal state to reflect deletion
+            setTemplateBackup(null)
+            toast.success("Template backup deleted.")
+        } catch (error) {
+            console.error("useLocalStorage: Failed to delete backup:", error)
+            toast.error("Failed to delete template backup", { description: error.message })
+        }
+    }, []) // Empty dependency, function reference is stable
+
+    // Return the state and stable functions
+    return { templateBackup, saveTemplateBackup, deleteTemplateBackup }
 }
 
 export default useLocalStorage
