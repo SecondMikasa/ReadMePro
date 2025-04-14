@@ -1,5 +1,5 @@
 "use client"
-export const Loader = () => {
+const Loader = () => {
 
     const size = 48
     const outerColor = "#16a34a"
@@ -51,3 +51,5 @@ export const Loader = () => {
         </div>
     )
 }
+
+export default Loader

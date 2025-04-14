@@ -14,8 +14,8 @@ import useLocalStorage from '@/hooks/useLocalStorage'
 import Navbar from '@/app/_components/editor/Navbar'
 import SectionColumn from '@/app/_components/editor/section-column'
 import DownloadModal from '@/app/_components/editor/download-modal'
-
-import {Loader} from '@/app/_components/Loader'
+import Loader from '@/app/_components/editor/Loader'
+import EditorPreviewContainer from '@/app/_components/editor/editor-preview-container'
 
 import { cn } from '@/lib/utils'
 
@@ -69,7 +69,9 @@ const Page = () => {
         try {
             const storedSlugs = localStorage.getItem(SELECTED_SLUGS_KEY)
 
-            if (storedSlugs && typeof storedSlugs === 'string' && storedSlugs.trim() !== '') {
+            if (storedSlugs
+                && typeof storedSlugs === 'string'
+                && storedSlugs.trim() !== '') {
 
                 const parsedSlugs = storedSlugs.split(',').filter(slug => slug && slug.trim() !== '')
 
@@ -250,7 +252,7 @@ const Page = () => {
 
     if (!isInitialized) {
         return (
-                <Loader />
+            <Loader />
         )
     }
 
@@ -297,12 +299,21 @@ const Page = () => {
                     </div>
 
                     <div className="flex-1 bg-gray-700 text-white p-6 overflow-auto">
-                        <h2 className="text-xl mb-4">
+                        {/* <h2 className="text-xl mb-4">
                             Editor / Preview Area
                         </h2>
                         <p>
                             Focused Section: {focusedSectionSlug || 'None'}
-                        </p>
+                        </p> */}
+                        <EditorPreviewContainer
+                            templates={templates}
+                            setTemplates={setTemplates}
+                            getTemplate={getTemplate}
+                            focusedSectionSlug={focusedSectionSlug}
+                            // setFocusedSectionSlug={setFocusedSectionSlug}
+                            selectedSectionSlugs={selectedSectionSlugs}
+                            setSelectedSectionSlugs={setSelectedSectionSlugs}
+                        />
                     </div>
                 </div>
             </div>
