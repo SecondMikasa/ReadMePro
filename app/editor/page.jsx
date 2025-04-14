@@ -7,18 +7,16 @@ import {
     useCallback
 } from 'react'
 
-import { SectionTemplates } from '@/data/section-template'
+import { SectionTemplates } from '@/data/section-template' // Assuming this path is correct
+import useLocalStorage from '@/hooks/useLocalStorage' // Assuming this path is correct
 
-import useLocalStorage from '@/hooks/useLocalStorage'
-
-import Navbar from '@/app/_components/editor/Navbar'
+import Navbar from '@/app/_components/editor/Navbar' // Assuming paths are correct
 import SectionColumn from '@/app/_components/editor/section-column'
 import DownloadModal from '@/app/_components/editor/download-modal'
 import Loader from '@/app/_components/editor/Loader'
 import EditorPreviewContainer from '@/app/_components/editor/editor-preview-container'
 
-import { cn } from '@/lib/utils'
-
+import { cn } from '@/lib/utils' // Assuming this path is correct
 import { toast } from 'sonner'
 
 // --- Constants for localStorage keys ---
@@ -104,7 +102,7 @@ const Page = () => {
         let finalTemplates = []
 
         try {
-            const defaultTemplates = [...SectionTemplates]
+            const defaultTemplates = [...SectionTemplates] // Fresh copy
 
             const defaultTemplateMap = new Map(defaultTemplates.map(t => [t.slug, t]))
 
@@ -121,11 +119,11 @@ const Page = () => {
         } catch (error) {
             console.error("Init: Error processing templates:", error)
             toast.error("Failed to initialize templates. Using defaults.")
-            finalTemplates = [...SectionTemplates];
+            finalTemplates = [...SectionTemplates]; // Fresh copy on error
         }
         console.log("Init: Setting Templates:", finalTemplates)
         // *** CRITICAL: Set Templates State ***
-        setTemplates(finalTemplates) // This is the line that previously caused issues
+        setTemplates(finalTemplates)
 
         // --- Mark Initialization Complete ---
         setIsInitialized(true)
@@ -172,10 +170,11 @@ const Page = () => {
         // Use the memoized saveTemplateBackup from the hook
         // Check isInitialized to prevent saving during the initial render cycle before state is ready
         if (isInitialized && isMounted.current && Array.isArray(templates)) {
-            console.log("Persist Effect: Saving template content backup via saveTemplateBackup.")
-            // Log here to ensure it doesn't run excessively
-            // console.log("Persist Effect: Current Templates:", templates);
-            saveTemplateBackup(templates)
+             // Only save if templates is a non-empty array to avoid saving empty/initial state
+            if (templates.length > 0) {
+                console.log("Persist Effect: Saving template content backup via saveTemplateBackup.")
+                saveTemplateBackup(templates)
+            }
         }
     }, [templates, saveTemplateBackup, isInitialized])
     // Depends on templates, the stable save function, and init flag
@@ -205,7 +204,8 @@ const Page = () => {
             const newSlugs = typeof newSlugsOrCallback === 'function'
                 ? newSlugsOrCallback(currentSlugs)
                 : newSlugsOrCallback;
-            return Array.isArray(newSlugs) ? newSlugs : [];
+            // Ensure result is always an array
+            return Array.isArray(newSlugs) ? newSlugs.filter(Boolean) : [];
         })
     }, []) // No dependencies needed if only using setter function form
 
@@ -219,6 +219,7 @@ const Page = () => {
             const newTemplates = typeof newTemplatesOrCallback === 'function'
                 ? newTemplatesOrCallback(currentTemplates)
                 : newTemplatesOrCallback;
+            // Ensure result is always an array
             return Array.isArray(newTemplates) ? newTemplates : []
         })
     }, []) // No dependencies needed here
@@ -238,17 +239,16 @@ const Page = () => {
             deleteTemplateBackup() // Clear backup storage
 
             // Use setTimeout to re-enable initialization/persistence slightly after state updates queued
-            // This helps ensure state updates are processed before persistence effects try to run again
             setTimeout(() => {
                 if (isMounted.current) { // Check if still mounted
                     setIsInitialized(true)
                     console.log("Re-enabled initialization after reset.")
                 }
-            }, 0);
+            }, 50); // Small delay might be safer than 0
 
             toast.success("Sections reset to default.");
         }
-    }, [deleteTemplateBackup])
+    }, [deleteTemplateBackup]) // Dependency on deleteTemplateBackup is correct
 
     if (!isInitialized) {
         return (
@@ -267,21 +267,26 @@ const Page = () => {
             {showModal && (
                 <DownloadModal
                     setShowModal={setShowModal}
-                // Pass generated markdown content here eventually
+                    // TODO: Pass generated markdown content here eventually
+                    // You'll likely need to generate the final markdown string here or in the modal
+                    // using selectedSectionSlugs and getTemplate
                 />
             )}
-            <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950 overflow-hidden flex flex-col'>
+            {/* Ensure outer container allows height: 100vh */}
+            <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950 overflow-hidden flex flex-col pt-16'> {/* Adjust pt if Navbar height changes */}
 
-                <div className='flex flex-1 md:px-6 md:pt-6 overflow-hidden'>
+                {/* Main content area taking remaining height */}
+                <div className='flex flex-1 md:px-6 md:pb-6 overflow-hidden'> {/* Changed pt-6 to pb-6 */}
                     {/* Drawer/Sidebar */}
                     <div
                         className={cn(
-                            "flex-shrink-0 text-gray-800 md:text-white drawer-height absolute md:static top-0 left-0 h-full",
+                            "flex-shrink-0 text-gray-800 md:text-white drawer-height absolute md:static top-16 md:top-0 left-0 h-[calc(100%-4rem)] md:h-full", // Adjust height calc based on Navbar
                             "p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0",
                             "transform transition-transform duration-300 ease-in-out",
                             showDrawer ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-                            "md:w-80 lg:w-96"
+                            "md:w-80 lg:w-96 overflow-y-auto" // Added overflow-y-auto
                         )}
+                        style={{ drawerHeight: "calc(100vh - 4rem)" }} // Example: Adjust based on actual Navbar height
                     >
                         {/* Pass memoized handlers */}
                         <SectionColumn
@@ -291,35 +296,30 @@ const Page = () => {
                             focusedSectionSlug={focusedSectionSlug}
                             setFocusedSectionSlug={handleSetFocusedSlug}
                             templates={templates}
-                            setTemplates={handleSetTemplates}
+                            setTemplates={handleSetTemplates} // Pass the correct handler
                             getTemplate={getTemplate}
-                            originalTemplates={SectionTemplates}
-                            handleResetAll={handleResetAll} // Pass memoized reset handler
+                            originalTemplates={SectionTemplates} // Pass original defaults if needed for comparison/reset
+                            // handleResetAll={handleResetAll} // ResetAll is likely triggered from Navbar, not SectionColumn
                         />
                     </div>
 
-                    <div className="flex-1 bg-gray-700 text-white p-6 overflow-auto">
-                        {/* <h2 className="text-xl mb-4">
-                            Editor / Preview Area
-                        </h2>
-                        <p>
-                            Focused Section: {focusedSectionSlug || 'None'}
-                        </p> */}
+                    {/* Editor/Preview Area taking remaining space and height */}
+                    <div className="flex-1 text-white overflow-hidden flex flex-col md:pl-6"> {/* Added overflow-hidden and flex-col */}
                         <EditorPreviewContainer
                             templates={templates}
-                            setTemplates={setTemplates}
+                            setTemplates={handleSetTemplates} // Pass the correct handler
                             getTemplate={getTemplate}
                             focusedSectionSlug={focusedSectionSlug}
-                            // setFocusedSectionSlug={setFocusedSectionSlug}
                             selectedSectionSlugs={selectedSectionSlugs}
-                            setSelectedSectionSlugs={setSelectedSectionSlugs}
+                            // These likely aren't needed directly by EditorPreviewContainer
+                            // setSelectedSectionSlugs={handleSetSelectedSlugs}
+                            // setFocusedSectionSlug={handleSetFocusedSlug}
                         />
                     </div>
                 </div>
             </div>
         </>
-
     )
 }
 
-export default Page
+export default Page;

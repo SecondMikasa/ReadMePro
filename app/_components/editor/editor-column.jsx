@@ -1,8 +1,13 @@
-import { useEffect, useRef, useState } from "react"
-import { Editor as MonacoEditor } from "@monaco-editor/react"
+import {
+    useState,
+    useEffect,
+    useRef,
+    useCallback
+} from "react" 
+
+import { Editor as MonacoEditor } from "@monaco-editor/react" 
 
 import useDeviceDetect from "../../../hooks/useDeviceDetect"
-import useLocalStorage from "../../../hooks/useLocalStorage"
 
 import { cn } from "../../../lib/utils"
 
@@ -11,116 +16,136 @@ export const EditorColumn = ({
     templates,
     setTemplates,
     theme,
-    setToggleState
+    setToggleState // Keep if needed for initial theme set
 }) => {
 
-    const getMarkdown = () => {
-        const section = templates.find((s) => s.slug === focusedSectionSlug)
-
-        return section ? section.markdown : ""
-    }
-
-    const [markdown, setMarkdown] = useState(getMarkdown())
-    const [isFocused, setIsFocused] = useState(false)
+    // Local state for the editor content
+    const [markdown, setMarkdown] = useState("")
     const [monacoEditor, setMonacoEditor] = useState(null)
 
     const { isMobile } = useDeviceDetect()
-    const { saveTemplateBackup } = useLocalStorage()
 
     const monacoEditorRef = useRef(null)
-    const textEditorRef = useRef(null)
+    const textAreaRef = useRef(null)
 
+    // --- Helper to get current markdown ---
+    const getMarkdownForSlug = useCallback((slug) => {
+        if (!slug || !Array.isArray(templates)) return ""
+        const section = templates.find((s) => s.slug === slug)
+        return section ? section.markdown : ""
+    }, [templates]) // Depends only on templates array
+
+    // --- Effect to load Monaco dynamically ---
+    useEffect(() => {
+        if (!isMobile && !monacoEditor) {
+            import("@monaco-editor/react").then((EditorModule) => {
+                setMonacoEditor(() => EditorModule.Editor) // Set the component itself
+            }).catch(err => console.error("Failed to load Monaco Editor:", err))
+        }
+    }, [isMobile, monacoEditor])
+
+    // --- Effect to update local markdown state when focus changes ---
+    useEffect(() => {
+        const currentMarkdown = getMarkdownForSlug(focusedSectionSlug);
+        setMarkdown(currentMarkdown);
+
+    }, [focusedSectionSlug, getMarkdownForSlug])
+    // Rerun when slug changes or getter updates
+
+    // --- Monaco Mount Handler ---
     const handleEditorMount = (editor) => {
         monacoEditorRef.current = editor
-        setEditorTheme()
+        // You could potentially set initial theme here if needed, but EditorPreviewContainer handles it too
+        // setEditorTheme(); // Example: if you had a setEditorTheme function
+        console.log("Monaco Editor Mounted")
+        editor.focus() // Optionally auto-focus on mount
     }
 
-    // Set color theme of editor from value pushed and saved in localStorage
-    const setEditorTheme = () => {
-        if (localStorage.getItem("editor-color-theme") == "light") {
-            setToggleState({
-                theme: "light",
-                img: "toggle_moon.svg"
-            })
+    // --- Edit Handler (for both Monaco and Textarea) ---
+    // useCallback is useful if this function were passed down further, but good practice anyway
+    const handleEdit = useCallback((value) => {
+        const newValue = value ?? '' // Ensure value is a string
+        // Update local state immediately for responsiveness
+        setMarkdown(newValue)
 
-        }
-    }
-
-    const onEdit = (value) => {
-        setMarkdown(value)
-
-        const newTemplates = templates.slug((template) => {
-            if (template.slug === focusedSectionSlug) {
-                return {
-                    ...template,
-                    markdown: value
-                }
+        // Update the main templates state in page.tsx using functional update
+        setTemplates(currentTemplates => {
+            if (!Array.isArray(currentTemplates)) {
+                console.error("handleEdit: currentTemplates is not an array!", currentTemplates)
+                return []
+                // Return empty array or handle error appropriately
             }
-
-            return template
+            // Use map to create a new array with the updated item
+            return currentTemplates.map(template => {
+                if (template.slug === focusedSectionSlug) {
+                    return { ...template, markdown: newValue }
+                }
+                // Return the original object if it's not the one being edited
+                return template;
+            })
         })
 
-        setTemplates(newTemplates)
-        saveTemplateBackup(newTemplates)
-    }
+        // The useEffect in page.tsx watching 'templates' will handle saving the backup
+        // No need to call saveTemplateBackup(newTemplates) here
 
-    useEffect(() => {
-        if (!isMobile && !MonacoEditor) {
-            import("@monaco-editor/react").then((EditorComp) => {
-                setMonacoEditor(EditorComp.default)
-            })
-        }
-    }, [monacoEditor, isMobile, setMonacoEditor])
-
-    useEffect(() => {
-        const markdown = getMarkdown()
-        setMarkdown(markdown)
-    }, [focusedSectionSlug, templates])
+    }, [focusedSectionSlug, setTemplates]) // Dependencies for the update logic
 
     return (
         <>
             {
                 focusedSectionSlug ? (
-                    <p
-                        className="font-sm text-green-500 max-w-[28rem] text-center mx-auto mt-10"
-                    >
-                        Select a section to edit the content
-                    </p>
-                ) : isMobile ? (
+                // If a section is focused, show the appropriate editor
+                isMobile ? (
                     <textarea
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={() => setIsFocused(false)}
-                        ref={textEditorRef}
-                        type="text"
-                        onChange={(e) => onEdit(e.target.value)}
+                        ref={textAreaRef}
+                        onChange={(e) => handleEdit(e.target.value)}
                         value={markdown}
-                        // FIXME: full-screen
+                        placeholder="Enter markdown content here..."
                         className={cn(
-                            "full-screen rounded-sm h-full border border-gray-500 p-6 resize-none",
-                            theme === "vs-dark" ? "bg-gray-800" : ""
+                            "w-full h-full rounded-sm border border-gray-500 p-4 resize-none outline-none focus:border-blue-500", // Ensure full size and basic styling
+                            theme === "vs-dark" ? "bg-[#1e1e1e] text-gray-200 placeholder-gray-500" : "bg-white text-black placeholder-gray-400" // Theme-based colors
                         )}
                     />
                 ) : (
-                    monacoEditor && (
-                        <MonacoEditor
-                            onMount={handleEditorMount}
-                            wrapperProps="rounded-sm border border-gray-500"
-                            className="full-screen"
-                            theme={theme}
+                    // Show Monaco Editor if loaded, otherwise a loading message
+                    monacoEditor ? (
+                        <MonacoEditor // Render the dynamically imported component
+                            height="100%" // Make editor fill container height
+                            width="100%" // Make editor fill container width
                             language="markdown"
-                            value={markdown}
-                            loading={"Loading..."}
-                            aria-label="Markdown Editor"
+                            theme={theme} // Pass theme prop
+                            value={markdown} // Controlled component
+                            onChange={handleEdit} // Use the onChange prop
+                            onMount={handleEditorMount} // Use the onMount prop
+                            loading={
+                                <div className="p-4 text-gray-400">
+                                    Loading Editor...
+                                </div>
+                            }
                             options={{
-                                minimap: {
-                                    enabled: false
-                                },
-                                lineNumbers: false
+                                minimap: { enabled: false },
+                                lineNumbers: 'off', // 'on' or 'off'
+                                wordWrap: 'on', // Enable word wrap
+                                scrollBeyondLastLine: false,
+                                automaticLayout: true, // Adjust layout on container resize
+                                fontSize: 14,
+                                padding: { top: 10, bottom: 10 },
                             }}
                         />
+                    ) : (
+                                <div className="p-4 text-gray-400">
+                                    Initializing Editor...
+                                </div> // Show if component not loaded yet
                     )
                 )
-            }
+            ) : (
+                // --- If NO section is focused, show placeholder ---
+                <div className="flex items-center justify-center h-full">
+                    <p className="text-md text-gray-500 text-center px-4">
+                        Select a section from the left panel to start editing its content.
+                    </p>
+                </div>
+            )}
         </>
-    )
-}
+    );
+};
