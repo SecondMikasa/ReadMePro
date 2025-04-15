@@ -178,7 +178,7 @@ const SectionColumn = ({
                                 ) : (
                                     slug !== "title-and-description" && (
                                         <li key={slug} className="text-red-400 text-xs p-2">
-                                            Error: Template data missing for "{slug}"
+                                            Error: Template data missing for {slug}
                                         </li>
                                     )
 
