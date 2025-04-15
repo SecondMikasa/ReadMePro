@@ -26,6 +26,7 @@ export const EditorColumn = ({
 
     const monacoEditorRef = useRef(null)
     const textAreaRef = useRef(null)
+    const editorContainerRef = useRef(null)
 
     // --- Helper to get current markdown ---
     const getMarkdownForSlug = useCallback((slug) => {
@@ -54,9 +55,7 @@ export const EditorColumn = ({
     // --- Monaco Mount Handler ---
     const handleEditorMount = (editor) => {
         monacoEditorRef.current = editor
-        console.log("Monaco Editor Mounted")
         editor.focus()
-        // Optionally auto-focus on mount
     }
 
     // --- Edit Handler (for both Monaco and Textarea) ---
@@ -83,6 +82,61 @@ export const EditorColumn = ({
 
     }, [focusedSectionSlug, setTemplates]) // Dependencies for the update logic
 
+    useEffect(() => {
+        const container = editorContainerRef.current
+        if (!container || isMobile) return
+        // Only apply to desktop editor container
+
+        const handleWheel = (event) => {
+            const editor = monacoEditorRef.current;
+            if (!editor) return
+
+            const scrollableElement = editor.getDomNode() 
+
+            if (!scrollableElement) return
+
+            const {
+                scrollTop,
+                scrollHeight,
+                clientHeight
+            } = scrollableElement
+
+            const isAtTop = scrollTop === 0
+            const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 1
+            // Use tolerance
+
+            const isScrollingUp = event.deltaY < 0
+            const isScrollingDown = event.deltaY > 0
+
+             // If editor content doesn't fill the view, let parent scroll
+            if (scrollHeight <= clientHeight) {
+                 // Optionally prevent default here too if you NEVER want editor scroll
+                 // event.preventDefault(); // Uncomment cautiously
+                 return // Allow parent scroll implicitly
+            }
+
+            // If at the top and scrolling up, prevent editor scroll to allow parent scroll
+            if (isAtTop && isScrollingUp) {
+                event.preventDefault();
+                return
+            }
+
+            // If at the bottom and scrolling down, prevent editor scroll to allow parent scroll
+            if (isAtBottom && isScrollingDown) {
+                event.preventDefault();
+                return;
+            }
+
+            // Otherwise, let the editor handle the scroll (do nothing here)
+        };
+
+        container.addEventListener('wheel', handleWheel, { passive: false }); // Need passive: false to call preventDefault
+
+        return () => {
+            container.removeEventListener('wheel', handleWheel);
+        };
+    }, [isMobile]);
+
     return (
         <>
             {
@@ -95,14 +149,16 @@ export const EditorColumn = ({
                             value={markdown}
                             placeholder="Enter markdown content here..."
                             className={cn(
-                                "w-full h-full rounded-sm border border-gray-500 p-4 resize-none outline-none focus:border-blue-500",
+                                "w-full h-full rounded-sm border border-gray-500 p-4 resize-none outline-none overscroll-none focus:border-blue-500",
                                 theme === "vs-dark" ? "bg-[#1e1e1e] text-gray-200 placeholder-gray-500" : "bg-white text-black placeholder-gray-400"
                             )}
                         />
                     ) : (
                         // Show Monaco Editor if loaded, otherwise a loading message
                         monacoEditor ? (
-                            <div className="w-full h-full overflow-hidden overscroll-contain">
+                                <div
+                                    ref={editorContainerRef}
+                                    className="w-full h-full overflow-hidden overscroll-contain">
                                 <MonacoEditor
                                     height="100%"
                                     width="100%"
@@ -123,7 +179,19 @@ export const EditorColumn = ({
                                         scrollBeyondLastLine: false,
                                         automaticLayout: true,
                                         fontSize: 14,
-                                        padding: { top: 10, bottom: 10 },
+                                        padding: {
+                                            top: 10,
+                                            bottom: 10
+                                        },
+                                        overviewRulerLanes: 0,
+                                        overviewRulerBorder: false,
+                                        scrollbar: {
+                                            vertical: 'visible',
+                                            horizontal: 'visible',
+                                            verticalScrollbarSize: 10,
+                                            horizontalScrollbarSize: 10,
+                                            alwaysConsumeMouseWheel: false 
+                                        }
                                     }}
                                 />
                             </div>

@@ -147,7 +147,7 @@ const SectionColumn = ({
             </h3>
 
             {/* Make the list areas scrollable */}
-            <div className="flex-1 overflow-y-auto px-3 pr-4 pb-6 custom-scrollbar"> {/* Added custom-scrollbar class if needed */}
+            <div className="flex-1 overflow-y-auto px-3 pr-4 pb-6 custom-scrollbar overscroll-behavior-contain">
                 {selectedSectionSlugs.length > 0 && (
                     <h4 className="text-xs leading-6 text-gray-300 md:text-white mb-3 mt-2 px-1">
                         Click to edit, drag to reorder.
