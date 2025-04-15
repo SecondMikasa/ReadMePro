@@ -40,7 +40,7 @@ const AboutPage = () => {
                             Why ReadMePro?
                         </h2>
                         <p>
-                            We believe that good documentation is crucial for any project's success. A well-crafted README serves as the front door, guiding users and contributors effectively. ReadMePro tackles common pain points by offering:
+                            We believe that good documentation is crucial for any project&apos;s success. A well-crafted README serves as the front door, guiding users and contributors effectively. ReadMePro tackles common pain points by offering:
                         </p>
                         <ul className="list-disc list-inside mt-4 space-y-2 text-gray-300">
                             <li>
@@ -49,7 +49,7 @@ const AboutPage = () => {
                                 </span>
                                 &nbsp;
                                 <span>
-                                    Template sections ensure key information isn't missed.
+                                    Template sections ensure key information isn&apos;t missed.
                                 </span>
                             </li>
                             <li>
@@ -67,7 +67,7 @@ const AboutPage = () => {
                                 </span>
                                 &nbsp;
                                 <span>
-                                    Custom sections allow you to tailor the README precisely to your project's needs.
+                                    Custom sections allow you to tailor the README precisely to your project&apos;s needs.
                                 </span>
                             </li>
                             <li>

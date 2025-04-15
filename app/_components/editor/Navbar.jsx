@@ -62,17 +62,28 @@ const Navbar = ({
                 </Link>
 
 
-                <div className='flex flex-row-reverse gap-5 md:flex-row'>
+                <div className="flex flex-row-reverse gap-5 md:flex-row">
                     <button
-                        type='button'
-                        className='px-4 py-2 flex bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition'
+                        type="button"
+                        className="group relative flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-300 overflow-hidden bg-[#22c55e] text-black shadow-lg hover:shadow-green-500/30"
                         onClick={downloadMarkdownFile}
                     >
-                        <img
-                            className='w-auto h-6 cursor-pointer'
-                            src="./download.svg"
-                            alt="Download Button" />
-                        <span className='hidden md:inline-block ml-2'>
+                        <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                        <svg
+                            className="w-5 h-5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M12 16L12 8M12 16L9 13M12 16L15 13M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V19C19 20.1046 18.1046 21 17 21Z"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                        <span className="relative hidden md:inline-block">
                             Download
                         </span>
                     </button>

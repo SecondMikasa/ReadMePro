@@ -1,27 +1,27 @@
-import { useEffect, useRef } from 'react';
-import Image from 'next/image';
+import { useEffect, useRef } from 'react'
+import Image from 'next/image'
 
 const DownloadModal = ({ setShowModal }) => {
-    const modalRef = useRef(null);
+    const modalRef = useRef(null)
 
-    const closeModal = () => setShowModal(false);
+    const closeModal = () => setShowModal(false)
 
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === 'Escape') {
-                closeModal();
+                closeModal()
             }
         };
 
-        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keydown', handleKeyDown)
 
         // Focus on the modal when it opens
-        modalRef.current?.focus();
+        modalRef.current?.focus()
 
         return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, []);
+            document.removeEventListener('keydown', handleKeyDown)
+        }
+    })
 
     return (
         <div
@@ -54,7 +54,7 @@ const DownloadModal = ({ setShowModal }) => {
                 </div>
             </div>
         </div>
-    );
-};
+    )
+}
 
 export default DownloadModal;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import Tabs from "./tabs" 
+import Tabs from "./tabs"
 import ColumnHeader from "./column-header"
 import { EditorColumn } from "./editor-column"
 import { PreviewColumn } from "./preview-column"
@@ -50,15 +50,16 @@ const EditorPreviewContainer = ({
     // Ensure container takes full height of its parent flex container
     return (
         <div className="flex flex-1 flex-col md:flex-row overflow-hidden h-full">
-            {isMobile ? (
-                <Tabs
-                    selectedTab={selectedTab}
-                    setSelectedTab={setSelectedTab}
-                    focusedSectionSlug={focusedSectionSlug}
-                    toggleState={toggleState}
-                    toggleTheme={toggleTheme}
-                />
-            ) : null}
+            {
+                isMobile ? (
+                    <Tabs
+                        selectedTab={selectedTab}
+                        setSelectedTab={setSelectedTab}
+                        focusedSectionSlug={focusedSectionSlug}
+                        toggleState={toggleState}
+                        toggleTheme={toggleTheme}
+                    />
+                ) : null}
 
             {/* Editor Column Container */}
             {

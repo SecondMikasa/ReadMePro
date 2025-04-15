@@ -1,9 +1,10 @@
-import { Fragment, useRef, useState } from "react";
-import { toast } from 'sonner'; // Use toast for feedback
+import { Fragment, useRef, useState } from "react"
+import Image from "next/image";
+
+import { toast } from 'sonner'
 
 import {
     Dialog,
-    DialogBackdrop,
     DialogPanel, 
     DialogTitle,
     Transition,
@@ -42,7 +43,6 @@ const CustomSection = ({
             .replace(/^-+|-+$/g, '')     // Trim leading/trailing hyphens
 
         let slug = baseSlug || `custom-section`
-        let counter = 1
 
         // Check if slug already exists in templates (via parent state/prop)
         // This check requires passing 'templates' prop or a 'checkSlugExists' function
@@ -98,23 +98,27 @@ const CustomSection = ({
             {/* Add Section Button */}
             <div className="mb-4 px-1"> {/* Added padding consistency */}
                 <button
-                    className="flex items-center justify-center w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md shadow cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 focus-visible:ring-green-400 transition-colors duration-150"
+                    className="flex items-center justify-center w-full py-2 px-4 bg-[#22c55e] hover:bg-green-700 text-white font-semibold rounded-md shadow cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-800 focus-visible:ring-green-400 transition-colors duration-150"
                     type="button"
                     onClick={() => setShowModal(true)}
                 >
-                    <img
-                        className="w-5 h-5"
-                        src="/plus.svg" // Use root path if in public folder
-                        alt="" // Decorative
+                    <Image
+                        src="/plus.svg" 
+                        alt="" 
+                        width={25}
+                        height={25}
                     />
-                    <span className="ml-2">
+                    <span className="ml-2 text-black">
                         Add Custom Section
                     </span>
                 </button>
             </div>
 
             {/* Modal */}
-            <Transition show={showModal} as={Fragment}>
+            <Transition
+                show={showModal}
+                as={Fragment}
+            >
                 <Dialog
                     as="div"
                     className="relative z-50" // Ensure modal is on top
@@ -131,8 +135,10 @@ const CustomSection = ({
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        {/* Use DialogBackdrop for semantic correctness if available and styled */}
-                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+                        <div
+                            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                            aria-hidden="true"
+                        />
                     </TransitionChild>
 
                     {/* Modal Panel Container */}
