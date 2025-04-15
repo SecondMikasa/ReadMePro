@@ -72,7 +72,7 @@ export const EditorColumn = ({
                 return []
                 // Return empty array as error handling
             }
-            
+
             return currentTemplates.map(template => {
                 if (template.slug === focusedSectionSlug) {
                     return { ...template, markdown: newValue }
@@ -102,29 +102,31 @@ export const EditorColumn = ({
                     ) : (
                         // Show Monaco Editor if loaded, otherwise a loading message
                         monacoEditor ? (
-                            <MonacoEditor
-                                height="100%"
-                                width="100%"
-                                language="markdown"
-                                theme={theme}
-                                value={markdown}
-                                onChange={handleEdit}
-                                onMount={handleEditorMount}
-                                loading={
-                                    <div className="p-4 text-gray-400">
-                                        Loading Editor...
-                                    </div>
-                                }
-                                options={{
-                                    minimap: { enabled: false },
-                                    lineNumbers: 'off',
-                                    wordWrap: 'on',
-                                    scrollBeyondLastLine: false,
-                                    automaticLayout: true,
-                                    fontSize: 14,
-                                    padding: { top: 10, bottom: 10 },
-                                }}
-                            />
+                            <div className="w-full h-full overflow-hidden overscroll-contain">
+                                <MonacoEditor
+                                    height="100%"
+                                    width="100%"
+                                    language="markdown"
+                                    theme={theme}
+                                    value={markdown}
+                                    onChange={handleEdit}
+                                    onMount={handleEditorMount}
+                                    loading={
+                                        <div className="p-4 text-gray-400">
+                                            Loading Editor...
+                                        </div>
+                                    }
+                                    options={{
+                                        minimap: { enabled: false },
+                                        lineNumbers: 'off',
+                                        wordWrap: 'on',
+                                        scrollBeyondLastLine: false,
+                                        automaticLayout: true,
+                                        fontSize: 14,
+                                        padding: { top: 10, bottom: 10 },
+                                    }}
+                                />
+                            </div>
                         ) : (
                             <div className="p-4 text-gray-400">
                                 Initializing Editor...

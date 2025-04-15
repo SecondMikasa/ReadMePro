@@ -170,7 +170,7 @@ const Page = () => {
         // Use the memoized saveTemplateBackup from the hook
         // Check isInitialized to prevent saving during the initial render cycle before state is ready
         if (isInitialized && isMounted.current && Array.isArray(templates)) {
-             // Only save if templates is a non-empty array to avoid saving empty/initial state
+            // Only save if templates is a non-empty array to avoid saving empty/initial state
             if (templates.length > 0) {
                 console.log("Persist Effect: Saving template content backup via saveTemplateBackup.")
                 saveTemplateBackup(templates)
@@ -227,28 +227,32 @@ const Page = () => {
     const handleResetAll = useCallback(() => {
         const resetConfirmed = window.confirm(
             "This will reset all sections to the default 'Title and Description' and remove custom content. Are you sure?"
-        );
+        )
         if (resetConfirmed) {
             console.log("Resetting all sections...")
-            setIsInitialized(false); // Temporarily pause persistence
 
-            // Performing resets
+            // 1. Directly updating state to defaults
             setSelectedSectionSlugs(DEFAULT_SLUGS)
             setFocusedSectionSlug(DEFAULT_FOCUSED_SLUG)
-            setTemplates([...SectionTemplates]) // Fresh copy of defaults
-            deleteTemplateBackup() // Clear backup storage
+            setTemplates([...SectionTemplates]) 
 
-            // Use setTimeout to re-enable initialization/persistence slightly after state updates queued
-            setTimeout(() => {
-                if (isMounted.current) { // Check if still mounted
-                    setIsInitialized(true)
-                    console.log("Re-enabled initialization after reset.")
-                }
-            }, 50); // Small delay might be safer than 0
+            // 2. Clearing the template content backup from the hook/localStorage
+            deleteTemplateBackup()
 
-            toast.success("Sections reset to default.");
+            // 3. *Immediately* clearing the relevant localStorage items as well
+            try {
+                localStorage.setItem(SELECTED_SLUGS_KEY, DEFAULT_SLUGS.join(','))
+                localStorage.setItem(FOCUSED_SLUG_KEY, DEFAULT_FOCUSED_SLUG)
+                 console.log("Cleared slug/focus localStorage during reset.")
+            }
+            catch (error) {
+                 console.error("Error clearing localStorage during reset:", error)
+            }
+
+            // 4. Notifying user through toast
+            toast.success("Sections reset to default.")
         }
-    }, [deleteTemplateBackup]) // Dependency on deleteTemplateBackup is correct
+    }, [deleteTemplateBackup])
 
     if (!isInitialized) {
         return (
@@ -264,29 +268,28 @@ const Page = () => {
                 isDrawerOpen={showDrawer}
                 onResetAllClick={handleResetAll}
             />
-            {showModal && (
-                <DownloadModal
-                    setShowModal={setShowModal}
+            {
+                showModal && (
+                    <DownloadModal
+                        setShowModal={setShowModal}
                     // TODO: Pass generated markdown content here eventually
                     // You'll likely need to generate the final markdown string here or in the modal
                     // using selectedSectionSlugs and getTemplate
-                />
-            )}
-            {/* Ensure outer container allows height: 100vh */}
-            <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950 overflow-hidden flex flex-col pt-16'> {/* Adjust pt if Navbar height changes */}
+                    />
+                )}
 
-                {/* Main content area taking remaining height */}
-                <div className='flex flex-1 md:px-6 md:pb-6 overflow-hidden'> {/* Changed pt-6 to pb-6 */}
+            <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950 overflow-hidden flex flex-col pt-16'>
+                <div className='flex flex-1 md:px-6 md:pb-6 overflow-hidden'>
                     {/* Drawer/Sidebar */}
                     <div
                         className={cn(
-                            "flex-shrink-0 text-gray-800 md:text-white drawer-height absolute md:static top-16 md:top-0 left-0 h-[calc(100%-4rem)] md:h-full", // Adjust height calc based on Navbar
+                            "flex-shrink-0 text-gray-800 md:text-white drawer-height absolute md:static top-16 md:top-0 left-0 h-[calc(100%-4rem)] md:h-full",
                             "p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0",
                             "transform transition-transform duration-300 ease-in-out",
                             showDrawer ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-                            "md:w-80 lg:w-96 overflow-y-auto" // Added overflow-y-auto
+                            "md:w-80 lg:w-96 overflow-y-auto"
                         )}
-                        style={{ drawerHeight: "calc(100vh - 4rem)" }} // Example: Adjust based on actual Navbar height
+                        style={{ drawerHeight: "calc(100vh - 4rem)" }}
                     >
                         {/* Pass memoized handlers */}
                         <SectionColumn
@@ -296,24 +299,21 @@ const Page = () => {
                             focusedSectionSlug={focusedSectionSlug}
                             setFocusedSectionSlug={handleSetFocusedSlug}
                             templates={templates}
-                            setTemplates={handleSetTemplates} // Pass the correct handler
+                            setTemplates={handleSetTemplates}
                             getTemplate={getTemplate}
-                            originalTemplates={SectionTemplates} // Pass original defaults if needed for comparison/reset
-                            // handleResetAll={handleResetAll} // ResetAll is likely triggered from Navbar, not SectionColumn
+                            originalTemplates={SectionTemplates}
+                            handleResetAll={handleResetAll}
                         />
                     </div>
 
-                    {/* Editor/Preview Area taking remaining space and height */}
-                    <div className="flex-1 text-white overflow-hidden flex flex-col md:pl-6"> {/* Added overflow-hidden and flex-col */}
+                    {/* Editor/Preview Area */}
+                    <div className="flex-1 text-white overflow-hidden flex flex-col md:pl-6">
                         <EditorPreviewContainer
                             templates={templates}
-                            setTemplates={handleSetTemplates} // Pass the correct handler
+                            setTemplates={handleSetTemplates}
                             getTemplate={getTemplate}
                             focusedSectionSlug={focusedSectionSlug}
                             selectedSectionSlugs={selectedSectionSlugs}
-                            // These likely aren't needed directly by EditorPreviewContainer
-                            // setSelectedSectionSlugs={handleSetSelectedSlugs}
-                            // setFocusedSectionSlug={handleSetFocusedSlug}
                         />
                     </div>
                 </div>
@@ -322,4 +322,4 @@ const Page = () => {
     )
 }
 
-export default Page;
+export default Page
