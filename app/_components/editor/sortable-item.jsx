@@ -13,40 +13,39 @@ const SortableItem = (props) => {
         transition
     } = useSortable({
         id: props.id,
-    });
+    })
 
     const style = {
         transform: CSS.Transform.toString(transform),
         transition,
-        // maxWidth: "300px", // Max width might be better handled by the parent container
-    };
+        // maxWidth: "300px", 
+        // // Max width might be better handled by the parent container
+    }
 
     const onClickSection = () => {
         // Use the setter function passed down from parent
         props.setFocusedSectionSlug(props.id)
-        // Remove localStorage interaction here
-        // localStorage.setItem("current-focused-slug", props.id)
-    };
+    }
 
-    // Keep onKeyUp for accessibility
+    // For accessibility
     const onKeyUp = (e) => {
-        if (e.key === "Enter" || e.key === " ") { // Handle Spacebar too
-            e.preventDefault() // Prevent page scroll on Space
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault() 
             onClickSection()
         }
-    };
+    }
 
-    // No changes needed for delete/reset handlers as they already call props functions
     const onClickTrash = (e) => {
-        // e.stopPropagation(); // Already done in parent handler if needed
+        // e.stopPropagation() 
+        // // Already done in parent handler if needed
         props.onDeleteSection(e, props.section.slug)
-    };
+    }
 
     const onClickReset = (e) => {
         e.stopPropagation() // Prevent triggering onClickSection
         const sectionResetConfirmed = window.confirm(
             `Reset "${props.section.name}" to its default content?`
-        );
+        )
         if (sectionResetConfirmed === true) {
             props.onResetSection(e, props.section.slug)
         }
@@ -83,13 +82,14 @@ const SortableItem = (props) => {
                 >
                     <img className="w-5 h-5 text-gray-500" src="/drag.svg" alt="" /> {/* Alt text empty ok for decorative */}
                 </button>
+
                 {/* Name (Truncated) */}
                 <p className="text-gray-800 truncate font-medium text-sm flex-1">
                     {props?.section?.name || "Unnamed Section"}
                 </p>
             </div>
 
-            {/* Action Buttons (Conditional) */}
+            {/* Action Buttons */}
             <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                 {isFocused || props.section.slug.startsWith('custom-') || props.section.slug !== 'title_and_description' ? ( // Show buttons if focused OR custom OR not title/desc
                     <>
@@ -102,6 +102,7 @@ const SortableItem = (props) => {
                         >
                             <img className="w-4 h-4 text-gray-600 hover:text-indigo-600" src="/reset.svg" alt="" />
                         </button>
+
                         {/* Prevent deleting title_and_description */}
                         {props.section.slug !== 'title_and_description' && (
                             <button
@@ -119,7 +120,7 @@ const SortableItem = (props) => {
                     // Placeholder to maintain layout consistency when buttons are hidden
                     <div
                         className="w-[60px] h-[24px]"
-                    /> // Adjust size to match visible buttons
+                    /> 
                 )}
             </div>
         </li>

@@ -15,26 +15,18 @@ import {
 } from "@dnd-kit/sortable"
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers"
 
-// Remove useLocalStorage import - handled by parent
+// Removed useLocalStorage import - handled by parent
 import SortableItem from "./sortable-item"
 import CustomSection from "./custom-section"
 
-const keybabCaseToTitleCase = (str) => {
-    if (!str) return "";
-    return str
-        .split("-")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-};
-
 const SectionColumn = ({
     selectedSectionSlugs,
-    setSelectedSectionSlugs, // Renamed prop for clarity
-    availableSectionSlugs, // Renamed prop
+    setSelectedSectionSlugs, 
+    availableSectionSlugs, 
     focusedSectionSlug,
-    setFocusedSectionSlug, // Renamed prop
+    setFocusedSectionSlug, 
     templates,
-    setTemplates, // Renamed prop
+    setTemplates, 
     getTemplate,
     originalTemplates, // Receive original templates for reset
     handleResetAll
@@ -44,11 +36,7 @@ const SectionColumn = ({
         useSensor(MouseSensor),
         useSensor(TouchSensor),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-    );
-
-    // Remove local state for pageRefreshed, addAction, slugsFromPreviousSession
-
-    // No useEffect needed here for localStorage loading/saving
+    )
 
     const handleDragEnd = (event) => {
         const { active, over } = event
@@ -57,61 +45,57 @@ const SectionColumn = ({
             setSelectedSectionSlugs((currentSlugs) => {
                 const oldIndex = currentSlugs.indexOf(active.id)
                 const newIndex = currentSlugs.indexOf(over.id)
-                if (oldIndex === -1 || newIndex === -1) return currentSlugs // Safety check
+                if (oldIndex === -1 || newIndex === -1) return currentSlugs 
                 return arrayMove(currentSlugs, oldIndex, newIndex)
             })
-            // No need to update localStorage here - parent's useEffect handles it
         }
-    };
+    }
 
     const onAddSection = (sectionSlugToAdd) => {
         // Call the parent state setters
-        setSelectedSectionSlugs((prev) => [...prev, sectionSlugToAdd]);
-        setFocusedSectionSlug(sectionSlugToAdd);
-        // No need to manage available slugs here, parent calculates it
-        // No need for addAction flag
-    };
+        setSelectedSectionSlugs((prev) => [...prev, sectionSlugToAdd])
+        setFocusedSectionSlug(sectionSlugToAdd)
+    }
 
     const onDeleteSection = (e, sectionSlugToDelete) => {
-        e.stopPropagation();
+        e.stopPropagation()
 
         // Update selected slugs via parent setter
-        const updatedSections = selectedSectionSlugs.filter(s => s !== sectionSlugToDelete);
+        const updatedSections = selectedSectionSlugs.filter(s => s !== sectionSlugToDelete)
         setSelectedSectionSlugs(updatedSections)
 
         // Handle focus change via parent setter
         if (focusedSectionSlug === sectionSlugToDelete) {
-            const newFocus = updatedSections.length > 0 ? updatedSections[0] : null;
+            const newFocus = updatedSections.length > 0 ? updatedSections[0] : null
             setFocusedSectionSlug(newFocus)
         }
-        // No need to update localStorage - parent handles it
-        // No need to manually add back to available slugs - parent calculates it
-    };
+    }
 
     const onResetSection = (e, sectionSlugToReset) => {
         e.stopPropagation()
 
         const originalSectionData = originalTemplates.find(
             (s) => s.slug === sectionSlugToReset
-        );
+        )
 
         // Find custom section data if it exists (to keep its structure but reset markdown)
-        const currentCustomSection = templates.find(t => t.slug === sectionSlugToReset && t.slug.startsWith('custom-'));
+        const currentCustomSection = templates.find(t => t.slug === sectionSlugToReset && t.slug.startsWith('custom-'))
 
-        let sectionToRestore;
+        let sectionToRestore
 
         if (originalSectionData) {
-            sectionToRestore = { ...originalSectionData }; // Use data from original defaults
+            sectionToRestore = { ...originalSectionData } // Use data from original defaults
         } else if (currentCustomSection) {
             // Reset custom section to its initial state
             sectionToRestore = {
                 slug: currentCustomSection.slug,
                 name: currentCustomSection.name, // Keep the custom name
                 markdown: `\n## ${currentCustomSection.name}\n`, // Default markdown for the custom title
-            };
+            }
         } else {
-            console.error(`Cannot find original or custom template data for slug: ${sectionSlugToReset}`);
-            return; // Don't proceed if no data found
+            console.error(`Cannot find original or custom template data for slug: ${sectionSlugToReset}`)
+            return
+            // Don't proceed if no data found
         }
 
 
@@ -125,10 +109,10 @@ const SectionColumn = ({
                 newTemplates.push(sectionToRestore)
             }
             return newTemplates
-        });
+        })
         // Parent's useEffect will handle saving the updated templates array
         console.log(`Reset content for section: ${sectionSlugToReset}`)
-    };
+    }
 
     // Use the reset handler passed from the parent (page.jsx)
     // const resetSelectedSections = () => { ... } // Remove this logic, use parent's handleResetAll
@@ -170,7 +154,7 @@ const SectionColumn = ({
                     </h4>
                 )}
 
-                <ul className="space-y-2 mb-6"> {/* Adjusted spacing */}
+                <ul className="space-y-2 mb-6"> 
                     <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
@@ -198,7 +182,7 @@ const SectionColumn = ({
                                         </li>
                                     )
 
-                                );
+                                )
                             })}
                         </SortableContext>
                     </DndContext>
@@ -206,7 +190,6 @@ const SectionColumn = ({
 
                 {/* Custom Section Adder */}
                 <CustomSection
-                    // Pass only necessary props/handlers
                     setTemplates={setTemplates}
                     setSelectedSectionSlugs={setSelectedSectionSlugs}
                     setFocusedSectionSlug={setFocusedSectionSlug}
@@ -219,7 +202,7 @@ const SectionColumn = ({
                     </h4>
                 )}
 
-                <ul className="space-y-2 mb-12"> {/* Adjusted spacing */}
+                <ul className="space-y-2 mb-12"> 
                     {availableSectionSlugs.map((slug) => {
                         const template = getTemplate(slug) // Use getTemplate to ensure we have data
                         return template ? (
@@ -234,7 +217,8 @@ const SectionColumn = ({
                                     </span>
                                 </button>
                             </li>
-                        ) : null // Don't render if template data somehow missing
+                        ) : null
+                        // Refraining from rendering if template data somehow missing
                     })}
                 </ul>
             </div>

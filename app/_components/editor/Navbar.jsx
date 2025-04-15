@@ -7,8 +7,8 @@ import useDeviceDetect from '@/hooks/useDeviceDetect'
 
 const Navbar = ({
     selectedSectionSlugs,
-    setShowModal,
     getTemplate,
+    setShowModal,
     onMenuClick,
     isDrawerOpen,
 }) => {
@@ -23,8 +23,8 @@ const Navbar = ({
             return acc
         }
 
-    }, ``) // Initial value of the accumulator (empty string in this case)
-
+    }, ``)
+    // Initial value of the accumulator (empty string in this case)
 
     const downloadMarkdownFile = () => {
         const a = document.createElement("a")
@@ -63,7 +63,11 @@ const Navbar = ({
 
 
                 <div className='flex flex-row-reverse gap-5 md:flex-row'>
-                    <button type='button' className='px-4 py-2 flex bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition' onClick={downloadMarkdownFile}>
+                    <button
+                        type='button'
+                        className='px-4 py-2 flex bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition'
+                        onClick={downloadMarkdownFile}
+                    >
                         <img
                             className='w-auto h-6 cursor-pointer'
                             src="./download.svg"

@@ -13,6 +13,7 @@
     "@dnd-kit/modifiers": "^7.0.0",
     "@dnd-kit/sortable": "^8.0.0",
     "@headlessui/react": "^2.2.0",
+    "@heroicons/react": "v1",
     "@monaco-editor/react": "^4.6.0",
     "@nauverse/tailwind-dot-grid-backgrounds": "^1.2.13",
     "clsx": "^2.1.1",

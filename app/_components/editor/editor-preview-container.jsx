@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import Tabs from "./tabs" // Assuming paths are correct
+import Tabs from "./tabs" 
 import ColumnHeader from "./column-header"
 import { EditorColumn } from "./editor-column"
 import { PreviewColumn } from "./preview-column"

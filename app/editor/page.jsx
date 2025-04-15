@@ -7,16 +7,16 @@ import {
     useCallback
 } from 'react'
 
-import { SectionTemplates } from '@/data/section-template' // Assuming this path is correct
-import useLocalStorage from '@/hooks/useLocalStorage' // Assuming this path is correct
+import { SectionTemplates } from '@/data/section-template' 
+import useLocalStorage from '@/hooks/useLocalStorage' 
 
-import Navbar from '@/app/_components/editor/Navbar' // Assuming paths are correct
+import Navbar from '@/app/_components/editor/Navbar' 
 import SectionColumn from '@/app/_components/editor/section-column'
 import DownloadModal from '@/app/_components/editor/download-modal'
 import Loader from '@/app/_components/editor/Loader'
 import EditorPreviewContainer from '@/app/_components/editor/editor-preview-container'
 
-import { cn } from '@/lib/utils' // Assuming this path is correct
+import { cn } from '@/lib/utils' 
 import { toast } from 'sonner'
 
 // --- Constants for localStorage keys ---
@@ -263,10 +263,11 @@ const Page = () => {
     return (
         <>
             <Navbar
+                selectedSectionSlugs={selectedSectionSlugs}
+                getTemplate={getTemplate}   
                 setShowModal={setShowModal}
                 onMenuClick={() => setShowDrawer(!showDrawer)}
                 isDrawerOpen={showDrawer}
-                onResetAllClick={handleResetAll}
             />
             {
                 showModal && (
