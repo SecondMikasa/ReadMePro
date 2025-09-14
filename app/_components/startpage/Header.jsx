@@ -41,11 +41,11 @@ const Header = () => {
                         </Link>
                     </nav>
 
-                    {/* Contact Button */}
+                    {/* Markdown Guide Button */}
                     <div className="hidden md:block">
-                        <Link legacyBehavior href="/">
+                        <Link legacyBehavior href="/markdown">
                             <a className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition">
-                                Contact Us
+                                Markdown Guide
                             </a>
                         </Link>
                     </div>
@@ -103,9 +103,9 @@ const Header = () => {
                                 </a>
                             </Link>
                             <div className="mt-6 text-center">
-                                <Link legacyBehavior href="/login">
+                                <Link legacyBehavior href="/markdown">
                                     <a className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow transition inline-block w-full">
-                                        Contact Us
+                                        Markdown Guide
                                     </a>
                                 </Link>
                             </div>
