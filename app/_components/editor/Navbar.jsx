@@ -41,7 +41,7 @@ const Navbar = ({
     }
 
     return (
-        <nav className='bg-black text-white shadow-md mx-auto relative z-10'>
+        <nav className='bg-black text-white shadow-md mx-auto relative z-40'>
             <div className='container mx-auto flex justify-between items-center py-4 px-6'>
 
                 <div className="flex items-center space-x-4">
@@ -83,7 +83,7 @@ const Navbar = ({
                     </div>
                     
                     {/* Hidden description for screen readers */}
-                    <span id="sections-menu-description">
+                    <span id="sections-menu-description" className="sr-only">
                         Toggle sections panel to add, remove, and reorder README sections
                     </span>
 

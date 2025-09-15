@@ -32,7 +32,7 @@ const useLocalStorage = () => {
                 loadedData = JSON.parse(localBackup)
                 // Validate that it's an array (adjust if other types are valid)
                 if (!Array.isArray(loadedData)) {
-                    console.warn("useLocalStorage Mount Effect: Backup is not an array. Discarding.")
+                    // console.warn("useLocalStorage Mount Effect: Backup is not an array. Discarding.")
                     toast.warning("Stored template data was invalid. Resetting.", { duration: 5000 })
                     localStorage.removeItem(TEMPLATE_BACKUP_KEY)
                     loadedData = null // Reset to null if invalid
@@ -47,7 +47,7 @@ const useLocalStorage = () => {
 
         }
         catch (error) {
-            console.error("useLocalStorage Mount Effect: Failed to parse backup:", error)
+            // console.error("useLocalStorage Mount Effect: Failed to parse backup:", error)
             toast.error("Failed to load template data. Resetting.", {
                 description: error.message
             })
@@ -58,25 +58,25 @@ const useLocalStorage = () => {
             // Set state only once after all checks
             setTemplateBackup(loadedData)
             initialLoadDone.current = true
-            console.log("useLocalStorage Mount Effect: Initial load complete. State set to:", loadedData)
+            // console.log("useLocalStorage Mount Effect: Initial load complete. State set to:", loadedData)
         }
     }, []) // Empty dependency array ensures this runs only once on mount
 
     // Memoized function to save data passed to it
     const saveTemplateBackup = useCallback((templatesToSave) => {
         if (!initialLoadDone.current) {
-            console.warn("useLocalStorage: Save called before initial load finished. Skipping.")
+            // console.warn("useLocalStorage: Save called before initial load finished. Skipping.")
             return // Avoid saving during initial render cycles
         }
         try {
-            console.log("useLocalStorage: Saving template backup:", templatesToSave)
+            // console.log("useLocalStorage: Saving template backup:", templatesToSave)
             const dataToSave = JSON.stringify(templatesToSave)
             localStorage.setItem(TEMPLATE_BACKUP_KEY, dataToSave)
             // We do not need to call setTemplateBackup here - this function's job is only to save.
             // The Page component manages the 'templates' state that triggers this save.
         }
         catch (error) {
-            console.error("useLocalStorage: Failed to save template backup:", error)
+            // console.error("useLocalStorage: Failed to save template backup:", error)
             toast.error("Failed to save template changes", { description: error.message })
         }
     }, []) // Empty dependency, function reference is stable
@@ -84,13 +84,13 @@ const useLocalStorage = () => {
     // Memoized function to delete data
     const deleteTemplateBackup = useCallback(() => {
         try {
-            console.log("useLocalStorage: Deleting template backup...")
+            // console.log("useLocalStorage: Deleting template backup...")
             localStorage.removeItem(TEMPLATE_BACKUP_KEY)
             // Update the internal state to reflect deletion
             setTemplateBackup(null)
             toast.success("Template backup deleted.")
         } catch (error) {
-            console.error("useLocalStorage: Failed to delete backup:", error)
+            // console.error("useLocalStorage: Failed to delete backup:", error)
             toast.error("Failed to delete template backup", {
                 description: error.message
             })

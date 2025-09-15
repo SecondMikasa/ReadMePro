@@ -9,7 +9,7 @@ const Tabs = ({
     toggleState
 }) => {
     return (
-        <div className="flex w-full items-end px-3 md:px-0"> 
+        <div className="flex w-full items-end px-3 md:px-0 relative z-10"> 
             
              {/* Editor Tab and Theme Toggle */}
             <div className="flex items-center border-b border-gray-600 pb-0"> 
@@ -25,7 +25,7 @@ const Tabs = ({
                     <button
                         onClick={toggleTheme}
                         aria-label="Color Mode"
-                        className="ml-2 mb-2 toggle-dark-mode focus:outline-none transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:transform-none p-1" // Added margin and padding
+                        className="ml-2 mb-2 toggle-dark-mode focus:outline-none transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:transform-none p-1 relative z-10" // Added margin and padding
                     >
                         <img
                             className="w-auto h-6" 

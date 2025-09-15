@@ -7,16 +7,16 @@ import {
     useCallback
 } from 'react'
 
-import { SectionTemplates } from '@/data/section-template' 
-import useLocalStorage from '@/hooks/useLocalStorage' 
+import { SectionTemplates } from '@/data/section-template'
+import useLocalStorage from '@/hooks/useLocalStorage'
 
-import Navbar from '@/app/_components/editor/Navbar' 
+import Navbar from '@/app/_components/editor/Navbar'
 import SectionColumn from '@/app/_components/editor/section-column'
 import DownloadModal from '@/app/_components/editor/download-modal'
 import Loader from '@/app/_components/editor/Loader'
 import EditorPreviewContainer from '@/app/_components/editor/editor-preview-container'
 
-import { cn } from '@/lib/utils' 
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities'
 
@@ -91,11 +91,11 @@ const Page = () => {
     useEffect(() => {
         // Only run if templateBackup is loaded (either null or an array)
         if (templateBackup === undefined) {
-            console.log("Initialization Effect: Waiting for templateBackup to load...")
+            // console.log("Initialization Effect: Waiting for templateBackup to load...")
             return
         }
 
-        console.log("Initialization Effect: Running with loaded templateBackup:", templateBackup)
+        // console.log("Initialization Effect: Running with loaded templateBackup:", templateBackup)
 
         // --- Load Slugs ---
         let loadedSlugs = DEFAULT_SLUGS
@@ -174,10 +174,10 @@ const Page = () => {
     useEffect(() => {
         if (isInitialized && isMounted.current) {
             try {
-                console.log("Persist Effect: Saving slugs:", selectedSectionSlugs)
+                // console.log("Persist Effect: Saving slugs:", selectedSectionSlugs)
                 localStorage.setItem(SELECTED_SLUGS_KEY, selectedSectionSlugs.join(","))
             } catch (error) {
-                console.error("Persist Error: Failed to save selected slugs:", error)
+                // console.error("Persist Error: Failed to save selected slugs:", error)
                 toast.error("Could not save section list changes.")
             }
         }
@@ -208,7 +208,7 @@ const Page = () => {
         if (isInitialized && isMounted.current && Array.isArray(templates)) {
             // Only save if templates is a non-empty array to avoid saving empty/initial state
             if (templates.length > 0) {
-                console.log("Persist Effect: Saving template content backup via saveTemplateBackup.")
+                // console.log("Persist Effect: Saving template content backup via saveTemplateBackup.")
                 saveTemplateBackup(templates)
             }
         }
@@ -270,7 +270,7 @@ const Page = () => {
             // 1. Directly updating state to defaults
             setSelectedSectionSlugs(DEFAULT_SLUGS)
             setFocusedSectionSlug(DEFAULT_FOCUSED_SLUG)
-            setTemplates([...SectionTemplates]) 
+            setTemplates([...SectionTemplates])
 
             // 2. Clearing the template content backup from the hook/localStorage
             deleteTemplateBackup()
@@ -279,10 +279,10 @@ const Page = () => {
             try {
                 localStorage.setItem(SELECTED_SLUGS_KEY, DEFAULT_SLUGS.join(','))
                 localStorage.setItem(FOCUSED_SLUG_KEY, DEFAULT_FOCUSED_SLUG)
-                 console.log("Cleared slug/focus localStorage during reset.")
+                console.log("Cleared slug/focus localStorage during reset.")
             }
             catch (error) {
-                 console.error("Error clearing localStorage during reset:", error)
+                console.error("Error clearing localStorage during reset:", error)
             }
 
             // 4. Notifying user through toast
@@ -300,7 +300,7 @@ const Page = () => {
         <>
             <Navbar
                 selectedSectionSlugs={selectedSectionSlugs}
-                getTemplate={getTemplate}   
+                getTemplate={getTemplate}
                 setShowModal={setShowModal}
                 onMenuClick={() => setShowDrawer(!showDrawer)}
                 isDrawerOpen={showDrawer}
@@ -321,12 +321,13 @@ const Page = () => {
                     <div
                         id="sections-drawer"
                         className={cn(
-                            "flex-shrink-0 text-gray-800 md:text-white drawer-height absolute md:static top-16 md:top-0 left-0 h-[calc(100%-4rem)] md:h-full",
-                            "p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0",
+                            "flex-shrink-0 text-white drawer-height fixed md:static top-16 md:top-0 left-0 h-[calc(100vh-4rem)] md:h-full",
+                            "p-6 md:p-0 bg-[#1b1d1e] md:bg-transparent shadow-lg md:shadow-none z-30 md:z-0 border-r border-gray-700 md:border-none",
                             "transform transition-transform duration-300 ease-in-out",
                             showDrawer ? "translate-x-0" : "-translate-x-full md:translate-x-0",
                             "w-80 lg:w-96 overflow-y-auto"
                         )}
+                        data-drawer-open={showDrawer}
                         style={{ drawerHeight: "calc(100vh - 4rem)" }}
                         role="navigation"
                         aria-label="README sections management"
@@ -350,7 +351,7 @@ const Page = () => {
                     {/* Overlay for mobile when sidebar is open - Enhanced for accessibility */}
                     {showDrawer && (
                         <div
-                            className="absolute inset-0 bg-black bg-opacity-50 z-5 md:hidden"
+                            className="absolute inset-0 bg-black bg-opacity-50 z-20 md:hidden"
                             onClick={() => setShowDrawer(false)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Escape') {
