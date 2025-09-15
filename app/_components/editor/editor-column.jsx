@@ -7,9 +7,8 @@ import {
 
 import { Editor as MonacoEditor } from "@monaco-editor/react"
 
-import useDeviceDetect from "../../../hooks/useDeviceDetect"
-
-import { cn } from "../../../lib/utils"
+import { useDeviceCapabilities } from "../../../hooks/useDeviceCapabilities"
+import { MobileEditor } from "./mobile-editor"
 
 export const EditorColumn = ({
     focusedSectionSlug,
@@ -22,10 +21,9 @@ export const EditorColumn = ({
     const [markdown, setMarkdown] = useState("")
     const [monacoEditor, setMonacoEditor] = useState(null)
 
-    const { isMobile } = useDeviceDetect()
+    const { isMobile, hasTouch } = useDeviceCapabilities()
 
     const monacoEditorRef = useRef(null)
-    const textAreaRef = useRef(null)
     const editorContainerRef = useRef(null)
 
     // --- Helper to get current markdown ---
@@ -91,7 +89,7 @@ export const EditorColumn = ({
             const editor = monacoEditorRef.current;
             if (!editor) return
 
-            const scrollableElement = editor.getDomNode() 
+            const scrollableElement = editor.getDomNode()
 
             if (!scrollableElement) return
 
@@ -108,11 +106,11 @@ export const EditorColumn = ({
             const isScrollingUp = event.deltaY < 0
             const isScrollingDown = event.deltaY > 0
 
-             // If editor content doesn't fill the view, let parent scroll
+            // If editor content doesn't fill the view, let parent scroll
             if (scrollHeight <= clientHeight) {
-                 // Optionally prevent default here too if you NEVER want editor scroll
-                 // event.preventDefault(); // Uncomment cautiously
-                 return // Allow parent scroll implicitly
+                // Optionally prevent default here too if you NEVER want editor scroll
+                // event.preventDefault(); // Uncomment cautiously
+                return // Allow parent scroll implicitly
             }
 
             // If at the top and scrolling up, prevent editor scroll to allow parent scroll
@@ -142,23 +140,23 @@ export const EditorColumn = ({
             {
                 focusedSectionSlug ? (
                     // If a section is focused, show the appropriate editor
-                    isMobile ? (
-                        <textarea
-                            ref={textAreaRef}
-                            onChange={(e) => handleEdit(e.target.value)}
+                    isMobile || hasTouch ? (
+                        <MobileEditor
                             value={markdown}
+                            onChange={handleEdit}
+                            theme={theme}
+                            language="markdown"
                             placeholder="Enter markdown content here..."
-                            className={cn(
-                                "w-full h-full rounded-sm border border-gray-500 p-4 resize-none outline-none overscroll-none focus:border-blue-500",
-                                theme === "vs-dark" ? "bg-[#1e1e1e] text-gray-200 placeholder-gray-500" : "bg-white text-black placeholder-gray-400"
-                            )}
+                            ariaLabel="Markdown editor"
+                            showToolbar={true}
+                            className="w-full h-full"
                         />
                     ) : (
                         // Show Monaco Editor if loaded, otherwise a loading message
                         monacoEditor ? (
-                                <div
-                                    ref={editorContainerRef}
-                                    className="w-full h-full overflow-hidden overscroll-contain">
+                            <div
+                                ref={editorContainerRef}
+                                className="w-full h-full overflow-hidden overscroll-contain">
                                 <MonacoEditor
                                     height="100%"
                                     width="100%"
@@ -190,7 +188,7 @@ export const EditorColumn = ({
                                             horizontal: 'visible',
                                             verticalScrollbarSize: 10,
                                             horizontalScrollbarSize: 10,
-                                            alwaysConsumeMouseWheel: false 
+                                            alwaysConsumeMouseWheel: false
                                         }
                                     }}
                                 />

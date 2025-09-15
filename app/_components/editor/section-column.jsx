@@ -135,14 +135,16 @@ const SectionColumn = ({
                     />
                     Sections
                 </div>
-                {/* Reset button moved to Navbar or kept here if preferred */}
+                {/* Reset button - Enhanced for touch accessibility */}
                 <button
-                    className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-1 rounded-md shadow transition-colors duration-200"
+                    className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white font-semibold px-3 py-2 rounded-md shadow transition-colors duration-200 min-w-[44px] min-h-[44px] focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 focus:ring-offset-gray-800"
                     type="button"
-                    onClick={handleResetAll} 
+                    onClick={handleResetAll}
+                    aria-label="Reset all sections to default"
                 >
-                     <img className="w-auto h-4 mr-1" src="/reset.svg" alt="Reset"/>
-                     Reset All
+                     <img className="w-auto h-4 mr-1" src="/reset.svg" alt="" aria-hidden="true"/>
+                     <span className="hidden sm:inline">Reset All</span>
+                     <span className="sm:hidden">Reset</span>
                  </button>
             </h3>
 
@@ -208,9 +210,10 @@ const SectionColumn = ({
                         return template ? (
                             <li key={slug}>
                                 <button
-                                    className="flex items-center w-full h-full text-left py-2 pl-3 pr-6 bg-gray-200 md:bg-gray-700 rounded-md shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-400 hover:bg-gray-300 md:hover:bg-gray-600 transition-colors duration-150"
+                                    className="flex items-center w-full text-left py-3 pl-3 pr-6 bg-gray-200 md:bg-gray-700 rounded-md shadow cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-400 hover:bg-gray-300 md:hover:bg-gray-600 transition-colors duration-150 min-h-[44px]"
                                     type="button"
                                     onClick={() => onAddSection(slug)}
+                                    aria-label={`Add ${template.name} section to README`}
                                 >
                                     <span className="text-gray-700 md:text-gray-200 font-medium text-sm">
                                         {template.name}

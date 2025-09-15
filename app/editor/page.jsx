@@ -18,6 +18,7 @@ import EditorPreviewContainer from '@/app/_components/editor/editor-preview-cont
 
 import { cn } from '@/lib/utils' 
 import { toast } from 'sonner'
+import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities'
 
 // --- Constants for localStorage keys ---
 const SELECTED_SLUGS_KEY = "current-slug-list"
@@ -36,6 +37,9 @@ const Page = () => {
     // Combined initialization flag
     const [isInitialized, setIsInitialized] = useState(false)
 
+    // Device capabilities for accessibility enhancements
+    const { isMobile, isTablet, orientation } = useDeviceCapabilities()
+
     // Ref to track if the component is mounted to prevent premature saves
     const isMounted = useRef(false)
     useEffect(() => {
@@ -45,6 +49,38 @@ const Page = () => {
             // Cleanup on unmount
         }
     }, [])
+
+    // Focus management for sections drawer
+    useEffect(() => {
+        if (showDrawer) {
+            // When drawer opens on mobile, focus the first interactive element
+            const drawer = document.getElementById('sections-drawer')
+            if (drawer) {
+                const firstFocusable = drawer.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+                if (firstFocusable) {
+                    setTimeout(() => firstFocusable.focus(), 100)
+                }
+            }
+        }
+    }, [showDrawer])
+
+    // Keyboard navigation support for drawer
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Toggle drawer with Ctrl/Cmd + B (common shortcut for sidebar) - only on smaller screens
+            if ((e.ctrlKey || e.metaKey) && e.key === 'b' && window.innerWidth < 768) {
+                e.preventDefault()
+                setShowDrawer(prev => !prev)
+            }
+            // Close drawer with Escape key
+            if (e.key === 'Escape' && showDrawer) {
+                setShowDrawer(false)
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [showDrawer])
 
 
     // Use the hook for template *content* backup
@@ -281,16 +317,20 @@ const Page = () => {
 
             <div className='w-screen h-screen bg-[#1b1d1e] bg-dot-8-s-2-neutral-950 overflow-hidden flex flex-col pt-16'>
                 <div className='flex flex-1 md:px-6 md:pb-6 overflow-hidden'>
-                    {/* Drawer/Sidebar */}
+                    {/* Drawer/Sidebar - Enhanced for accessibility */}
                     <div
+                        id="sections-drawer"
                         className={cn(
                             "flex-shrink-0 text-gray-800 md:text-white drawer-height absolute md:static top-16 md:top-0 left-0 h-[calc(100%-4rem)] md:h-full",
                             "p-6 md:p-0 bg-white md:bg-transparent shadow md:shadow-none z-10 md:z-0",
                             "transform transition-transform duration-300 ease-in-out",
                             showDrawer ? "translate-x-0" : "-translate-x-full md:translate-x-0",
-                            "md:w-80 lg:w-96 overflow-y-auto"
+                            "w-80 lg:w-96 overflow-y-auto"
                         )}
                         style={{ drawerHeight: "calc(100vh - 4rem)" }}
+                        role="navigation"
+                        aria-label="README sections management"
+                        aria-hidden={!showDrawer && (isMobile || (isTablet && orientation === 'portrait')) ? 'true' : 'false'}
                     >
                         {/* Pass memoized handlers */}
                         <SectionColumn
@@ -306,6 +346,22 @@ const Page = () => {
                             handleResetAll={handleResetAll}
                         />
                     </div>
+
+                    {/* Overlay for mobile when sidebar is open - Enhanced for accessibility */}
+                    {showDrawer && (
+                        <div
+                            className="absolute inset-0 bg-black bg-opacity-50 z-5 md:hidden"
+                            onClick={() => setShowDrawer(false)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape') {
+                                    setShowDrawer(false)
+                                }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Close sections menu"
+                        />
+                    )}
 
                     {/* Editor/Preview Area */}
                     <div className="flex-1 text-white overflow-hidden flex flex-col md:pl-6">

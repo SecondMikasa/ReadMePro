@@ -5,9 +5,9 @@ import ColumnHeader from "./column-header"
 import { EditorColumn } from "./editor-column"
 import { PreviewColumn } from "./preview-column"
 
-import useDeviceDetect from "../../../hooks/useDeviceDetect"
+import { useDeviceCapabilities } from "../../../hooks/useDeviceCapabilities"
 import { TAB } from "../../../lib/constants"
-import { toggleDarkMode } from "../../../lib/utils"
+import { toggleDarkMode, cn } from "../../../lib/utils"
 
 const EditorPreviewContainer = ({
     templates,
@@ -23,7 +23,7 @@ const EditorPreviewContainer = ({
     })
     const [selectedTab, setSelectedTab] = useState(TAB.PREVIEW)
 
-    const { isMobile } = useDeviceDetect()
+    const { isMobile, isTablet, screenSize, orientation } = useDeviceCapabilities()
 
     const toggleTheme = () => {
         toggleDarkMode(toggleState, setToggleState)
@@ -39,19 +39,28 @@ const EditorPreviewContainer = ({
         }
     }, []) // Run only once on mount
 
-    // Effect to set initial tab based on device
+    // Effect to set initial tab based on device and screen size
     useEffect(() => {
-        setSelectedTab(isMobile ? TAB.EDITOR : TAB.PREVIEW)
-    }, [isMobile])
+        if (isMobile || (isTablet && orientation === 'portrait')) {
+            setSelectedTab(TAB.EDITOR)
+        } else {
+            setSelectedTab(TAB.PREVIEW)
+        }
+    }, [isMobile, isTablet, orientation])
 
-    const showEditorColumn = !isMobile || selectedTab === TAB.EDITOR
-    const showPreviewColumn = !isMobile || selectedTab === TAB.PREVIEW || selectedTab === TAB.RAW
+    // Determine column visibility based on device capabilities and screen size
+    const shouldUseTabs = isMobile || (isTablet && orientation === 'portrait') || screenSize === 'small'
+    const showEditorColumn = !shouldUseTabs || selectedTab === TAB.EDITOR
+    const showPreviewColumn = !shouldUseTabs || selectedTab === TAB.PREVIEW || selectedTab === TAB.RAW
 
     // Ensure container takes full height of its parent flex container
     return (
-        <div className="flex flex-1 flex-col md:flex-row overflow-hidden h-full">
+        <div className={cn(
+            "flex flex-1 overflow-hidden h-full",
+            shouldUseTabs ? "flex-col" : "flex-col md:flex-row"
+        )}>
             {
-                isMobile ? (
+                shouldUseTabs ? (
                     <Tabs
                         selectedTab={selectedTab}
                         setSelectedTab={setSelectedTab}
@@ -64,9 +73,12 @@ const EditorPreviewContainer = ({
             {/* Editor Column Container */}
             {
                 showEditorColumn ? (
-                    <div className="w-full md:w-1/2 h-full flex flex-col md:pr-3 pb-3 md:pb-0">
+                    <div className={cn(
+                        "h-full flex flex-col",
+                        shouldUseTabs ? "w-full pb-3" : "w-full md:w-1/2 md:pr-3 pb-3 md:pb-0"
+                    )}>
                         {
-                            !isMobile ? (
+                            !shouldUseTabs ? (
                                 <ColumnHeader.Heading>
                                     Editor
                                     {/* Show toggle only if a section is selected for editing */}
@@ -110,9 +122,12 @@ const EditorPreviewContainer = ({
             {/* Preview Column Container */}
             {
                 showPreviewColumn ? (
-                    <div className="flex-1 h-full flex flex-col md:pl-3 pt-3 md:pt-0">
+                    <div className={cn(
+                        "flex-1 h-full flex flex-col",
+                        shouldUseTabs ? "pt-3" : "md:pl-3 pt-3 md:pt-0"
+                    )}>
                         {
-                            !isMobile ? (
+                            !shouldUseTabs ? (
                                 <div className="border-b border-gray-600">
                                     <nav className="-mb-px flex space-x-8" aria-label="Tabs">
                                         <ColumnHeader.Tab

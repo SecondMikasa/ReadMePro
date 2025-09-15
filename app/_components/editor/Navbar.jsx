@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 
-import useDeviceDetect from '@/hooks/useDeviceDetect'
+import { useDeviceCapabilities } from '@/hooks/useDeviceCapabilities'
 
 const Navbar = ({
     selectedSectionSlugs,
@@ -13,7 +13,7 @@ const Navbar = ({
     isDrawerOpen,
 }) => {
 
-    const { isMobile } = useDeviceDetect()
+    const { isMobile } = useDeviceCapabilities()
 
     const markdown = selectedSectionSlugs?.reduce((acc, section) => {
         const template = getTemplate(section)
@@ -44,22 +44,66 @@ const Navbar = ({
         <nav className='bg-black text-white shadow-md mx-auto relative z-10'>
             <div className='container mx-auto flex justify-between items-center py-4 px-6'>
 
-                {/* Home Button */}
-                <Link href="/">
-                    <div className="flex justify-start">
-                        <Image
-                            src='./logo.svg'
-                            alt="Logo"
-                            width={50}
-                            height={50}
-                        />
-                        <div className="flex items-center space-x-2">
-                            <span className="text-2xl font-bold text-green-400">
-                                ReadMePro
-                            </span>
-                        </div>
+                <div className="flex items-center space-x-4">
+                    {/* Mobile Menu Button - Enhanced for better accessibility */}
+                    <div className="relative md:hidden">
+                        <button
+                            onClick={onMenuClick}
+                            className="p-3 rounded-md text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 focus:ring-offset-black transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
+                            aria-label={isDrawerOpen ? "Close sections menu" : "Open sections menu"}
+                            aria-expanded={isDrawerOpen}
+                            aria-controls="sections-drawer"
+                            aria-describedby="sections-menu-description"
+                            type="button"
+                        >
+                            <svg
+                                className="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                {isDrawerOpen ? (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                ) : (
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M4 6h16M4 12h16M4 18h16"
+                                    />
+                                )}
+                            </svg>
+                        </button>
                     </div>
-                </Link>
+                    
+                    {/* Hidden description for screen readers */}
+                    <span id="sections-menu-description">
+                        Toggle sections panel to add, remove, and reorder README sections
+                    </span>
+
+                    {/* Home Button */}
+                    <Link href="/">
+                        <div className="flex justify-start">
+                            <Image
+                                src='./logo.svg'
+                                alt="Logo"
+                                width={50}
+                                height={50}
+                            />
+                            <div className="flex items-center space-x-2">
+                                <span className="text-2xl font-bold text-green-400">
+                                    ReadMePro
+                                </span>
+                            </div>
+                        </div>
+                    </Link>
+                </div>
 
 
                 <div className="flex flex-row-reverse gap-5 md:flex-row">

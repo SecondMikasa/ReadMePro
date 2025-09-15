@@ -64,7 +64,7 @@ const SortableItem = (props) => {
             tabIndex={0} // Make it focusable
             aria-pressed={isFocused} // Indicate selection state
             className={cn(
-                "bg-white shadow rounded-md px-3 py-2 flex items-center justify-between",
+                "bg-white shadow rounded-md px-3 py-3 flex items-center justify-between min-h-[44px]",
                 "cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-400", // Use focus-visible
                 "relative select-none group transition-shadow",
                 isFocused ? "ring-2 ring-green-500 shadow-md" : "hover:shadow-md"
@@ -75,12 +75,12 @@ const SortableItem = (props) => {
                 {/* Drag Handle */}
                 <button
                     type="button"
-                    className="mr-2 p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-green-400 rounded flex-shrink-0 cursor-grab active:cursor-grabbing"
+                    className="mr-2 p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-green-400 rounded flex-shrink-0 cursor-grab active:cursor-grabbing min-w-[44px] min-h-[44px] flex items-center justify-center"
                     {...listeners} // Listeners for dragging on the handle
                     aria-label={`Drag ${props.section.name}`}
                     tabIndex={-1} // Prevent handle from being tabbed to separately
                 >
-                    <img className="w-5 h-5 text-gray-500" src="/drag.svg" alt="" /> {/* Alt text empty ok for decorative */}
+                    <img className="w-5 h-5 text-gray-500" src="/drag.svg" alt="" aria-hidden="true" />
                 </button>
 
                 {/* Name (Truncated) */}
@@ -95,24 +95,24 @@ const SortableItem = (props) => {
                     <>
                         <button
                             type="button"
-                            className="p-1 rounded hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-400"
+                            className="p-2 rounded hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-indigo-400 min-w-[44px] min-h-[44px] flex items-center justify-center"
                             onClick={onClickReset}
-                            aria-label={`Reset ${props.section.name}`}
+                            aria-label={`Reset ${props.section.name} section content`}
                             title="Reset Section Content"
                         >
-                            <img className="w-4 h-4 text-gray-600 hover:text-indigo-600" src="/reset.svg" alt="" />
+                            <img className="w-4 h-4 text-gray-600 hover:text-indigo-600" src="/reset.svg" alt="" aria-hidden="true" />
                         </button>
 
                         {/* Prevent deleting title_and_description */}
                         {props.section.slug !== 'title_and_description' && (
                             <button
                                 type="button"
-                                className="p-1 rounded hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-400"
+                                className="p-2 rounded hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-red-400 min-w-[44px] min-h-[44px] flex items-center justify-center"
                                 onClick={onClickTrash}
-                                aria-label={`Delete ${props.section.name}`}
+                                aria-label={`Delete ${props.section.name} section`}
                                 title="Delete Section"
                             >
-                                <img className="w-4 h-4 text-gray-600 hover:text-red-600" src="/delete.svg" alt="" />
+                                <img className="w-4 h-4 text-gray-600 hover:text-red-600" src="/delete.svg" alt="" aria-hidden="true" />
                             </button>
                         )}
                     </>

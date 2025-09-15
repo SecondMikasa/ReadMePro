@@ -164,7 +164,6 @@ const CustomSection = ({
                                     <div className="mt-2">
                                         <label
                                             htmlFor="custom-section-title"
-                                            className="sr-only"
                                         >
                                             Section Title
                                         </label>
