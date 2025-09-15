@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 
 const Introduction = () => {
     return (
@@ -27,10 +28,12 @@ const Introduction = () => {
             </div>
             <div className="mt-10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                    <img
+                    <Image
                         src="/demo.png"
+                        width={1200}
+                        height={1200}
                         alt="Editor Demo Image"
-                        className="relative rounded-md shadow-lg border border-white"
+                        className="relative rounded-md shadow-lg border border-white mx-auto"
                     />
                 </div>
             </div>

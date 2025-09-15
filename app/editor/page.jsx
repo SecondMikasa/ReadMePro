@@ -177,7 +177,7 @@ const Page = () => {
                 // console.log("Persist Effect: Saving slugs:", selectedSectionSlugs)
                 localStorage.setItem(SELECTED_SLUGS_KEY, selectedSectionSlugs.join(","))
             } catch (error) {
-                // console.error("Persist Error: Failed to save selected slugs:", error)
+                console.error("Persist Error: Failed to save selected slugs:", error)
                 toast.error("Could not save section list changes.")
             }
         }

@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 const MarkdownPage = () => {
   const [darkMode, setDarkMode] = useState(true)
@@ -9,8 +10,8 @@ const MarkdownPage = () => {
     <div
       className={
         cn(
-        "min-h-screen scroll-smooth",
-        darkMode ? 'bg-[#1b1d1e]' : 'bg-white'
+          "min-h-screen scroll-smooth",
+          darkMode ? 'bg-[#1b1d1e]' : 'bg-white'
         )
       }
     >
@@ -64,27 +65,27 @@ const MarkdownPage = () => {
                 <pre className="bg-gray-100 dark:bg-gray-800/80 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
                   {`**Bold Text** or __Bold Text__\n*Italic Text* or _Italic Text_\n~~Strikethrough~~\n\`Inline code\`\nSuperscript: X^2^\nSubscript: H~2~O`}
                 </pre>
-                <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-md space-y-2">
-                    <p><strong className="font-bold">Bold Text</strong> or <strong className="font-bold">Bold Text</strong></p>
-                    <p><em className="italic">Italic Text</em> or <em className="italic">Italic Text</em></p>
-                    <p><del className="line-through">Strikethrough</del></p>
-                    <p><code className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-sm text-red-600 dark:text-red-400">Inline code</code></p>
-                    <p>Superscript: X<sup>2</sup></p>
-                    <p>Subscript: H<sub>2</sub>O</p>
+                <div className="p-4 border bg-black dark:text-white border-gray-200 dark:border-gray-700 rounded-md space-y-2">
+                  <p><strong className="font-bold">Bold Text</strong> or <strong className="font-bold">Bold Text</strong></p>
+                  <p><em className="italic">Italic Text</em> or <em className="italic">Italic Text</em></p>
+                  <p><del className="line-through">Strikethrough</del></p>
+                  <p><code className="bg-gray-200 dark:bg-gray-700 px-1 py-0.5 rounded text-sm text-red-600 dark:text-red-400">Inline code</code></p>
+                  <p>Superscript: X<sup>2</sup></p>
+                  <p>Subscript: H<sub>2</sub>O</p>
                 </div>
               </div>
             </section>
 
             {/* --- Lists --- */}
             <section id="lists" className="anchor">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h2 className="text-2xl font-semibold text-green-500 dark:text-green-400 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 Lists
               </h2>
               <div className="space-y-4">
-                 <pre className="bg-gray-100 dark:bg-gray-800/80 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
+                <pre className="bg-gray-100 dark:bg-gray-800/80 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
                   {`1. Ordered item 1\n2. Ordered item 2\n   1. Nested ordered item\n\n- Unordered item (or * or +)\n- Another item\n  - Nested unordered item`}
                 </pre>
-                <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-md space-y-3">
+                <div className="p-4 border bg-black dark:text-white border-gray-200 dark:border-gray-700 rounded-md space-y-2">
                   <ol className="list-decimal pl-6 space-y-1">
                     <li>Ordered item 1</li>
                     <li>Ordered item 2
@@ -97,7 +98,7 @@ const MarkdownPage = () => {
                     <li>Unordered item</li>
                     <li>Another item
                       <ul className="list-disc pl-6 mt-1">
-                          <li>Nested unordered item</li>
+                        <li>Nested unordered item</li>
                       </ul>
                     </li>
                   </ul>
@@ -107,21 +108,23 @@ const MarkdownPage = () => {
 
             {/* --- Links & Images --- */}
             <section id="links-images" className="anchor">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h2 className="text-2xl font-semibold text-green-500 dark:text-green-400 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 Links & Images
               </h2>
               <div className="space-y-4">
                 <pre className="bg-gray-100 dark:bg-gray-800/80 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
-                  {`[Link Text](https://www.example.com "Link Title")\n\n![Alt text](https://via.placeholder.com/150/1b1d1e/FFFFFF?text=Image "Image Title")`}
+                  {`[Link Text](https://www.example.com "Link Title")\n\n![Alt text](https://fastly.picsum.photos/id/47/4272/2848.jpg?hmac=G8dXSLa-ngBieraQt5EORu-4r6tveX3fhvBTZM0Y8xM "Image Title")`}
                 </pre>
-                <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-md">
+                <div className="p-4 border bg-black dark:text-white border-gray-200 dark:border-gray-700 rounded-md space-y-2">
                   <p>
                     <a href="https://www.example.com" title="Link Title" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
                       Link Text
                     </a>
                   </p>
-                  <img
-                    src="https://via.placeholder.com/150/1b1d1e/FFFFFF?text=Image" // Dark placeholder matching theme
+                  <Image
+                    width={100}
+                    height={100}
+                    src="https://fastly.picsum.photos/id/47/4272/2848.jpg?hmac=G8dXSLa-ngBieraQt5EORu-4r6tveX3fhvBTZM0Y8xM" // Dark placeholder matching theme
                     alt="Alt text"
                     title="Image Title"
                     className="mt-4 rounded-md max-w-[150px] border border-gray-300 dark:border-gray-600"
@@ -132,7 +135,7 @@ const MarkdownPage = () => {
 
             {/* --- Code Blocks --- */}
             <section id="code-blocks" className="anchor">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h2 className="text-2xl font-semibold text-green-500 dark:text-green-400 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 Code Blocks
               </h2>
               <div className="space-y-4">
@@ -140,7 +143,7 @@ const MarkdownPage = () => {
                   {`\`\`\`javascript\nfunction greet(name) {\n  console.log(\`Hello, \${name}!\`);\n}\ngreet('World');\n\`\`\``}
                 </pre>
                 {/* Rendered Code Block */}
-                <pre className="bg-gray-900 dark:bg-gray-800 p-4 rounded-md text-sm text-gray-100 dark:text-gray-200 overflow-x-auto">
+                  <pre className="p-4 border bg-black dark:text-white border-gray-200 dark:border-gray-700 rounded-md space-y-2 overflow-x-auto">
                   <code className="language-javascript">{`function greet(name) {
   console.log(\`Hello, \${name}!\`);
 }
@@ -151,7 +154,7 @@ greet('World');`}</code>
 
             {/* --- Tables --- */}
             <section id="tables" className="anchor">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h2 className="text-2xl font-semibold text-green-500 dark:text-green-400 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 Tables
               </h2>
               <div className="space-y-4">
@@ -159,7 +162,7 @@ greet('World');`}</code>
                   {`| Syntax      | Description |\n| :---------- | :----------: |\n| Header      | Title       |\n| Paragraph   | Text        |`}
                 </pre>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md">
+                  <table className="min-w-full border bg-black dark:text-white border-gray-200 dark:border-gray-700 rounded-md space-y-2">
                     <thead>
                       <tr className="bg-gray-100 dark:bg-gray-700">
                         <th className="py-2 px-4 text-left border-b border-r dark:border-gray-600">Syntax</th>
@@ -183,14 +186,14 @@ greet('World');`}</code>
 
             {/* --- Blockquotes --- */}
             <section id="blockquotes" className="anchor">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h2 className="text-2xl font-semibold text-green-500 dark:text-green-400 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 Blockquotes
               </h2>
               <div className="space-y-4">
                 <pre className="bg-gray-100 dark:bg-gray-800/80 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 overflow-x-auto">
                   {`> This is a blockquote.\n> It can span multiple lines.`}
                 </pre>
-                <blockquote className="border-l-4 border-gray-400 dark:border-gray-500 pl-4 italic text-gray-600 dark:text-gray-400">
+                <blockquote className="bg-black border-l-4 border-gray-400 dark:border-gray-500 pl-4 italic text-white">
                   <p>This is a blockquote.</p>
                   <p>It can span multiple lines.</p>
                 </blockquote>
@@ -199,7 +202,7 @@ greet('World');`}</code>
 
             {/* --- Horizontal Rule --- */}
             <section id="horizontal-rule" className="anchor">
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h2 className="text-2xl font-semibold text-green-500 dark:text-green-400 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 Horizontal Rule
               </h2>
               <div className="space-y-4">
@@ -215,22 +218,22 @@ greet('World');`}</code>
           {/* Added self-start to prevent stretching and ensure sticky works correctly within grid */}
           <aside className="sticky top-20 self-start hidden md:block">
             {/* Hide on mobile, use sticky on medium+ */}
-            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
+            <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">
                 Quick Links
-                </h3>
-                <nav>
+              </h3>
+              <nav>
                 <ul className="space-y-2">
-                    <li><a href="#headings" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Headings</a></li>
-                    <li><a href="#text-formatting" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Text Formatting</a></li>
-                    <li><a href="#lists" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Lists</a></li>
-                    <li><a href="#links-images" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Links & Images</a></li>
-                    <li><a href="#code-blocks" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Code Blocks</a></li>
-                    <li><a href="#tables" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Tables</a></li>
-                    <li><a href="#blockquotes" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Blockquotes</a></li>
-                    <li><a href="#horizontal-rule" className="text-blue-600 dark:text-blue-400 hover:underline text-sm">Horizontal Rule</a></li>
+                  <li><a href="#headings" className="text-blue-600 hover:underline text-sm">Headings</a></li>
+                  <li><a href="#text-formatting" className="text-blue-600 hover:underline text-sm">Text Formatting</a></li>
+                  <li><a href="#lists" className="text-blue-600 hover:underline text-sm">Lists</a></li>
+                  <li><a href="#links-images" className="text-blue-600 hover:underline text-sm">Links & Images</a></li>
+                  <li><a href="#code-blocks" className="text-blue-600 hover:underline text-sm">Code Blocks</a></li>
+                  <li><a href="#tables" className="text-blue-600 hover:underline text-sm">Tables</a></li>
+                  <li><a href="#blockquotes" className="text-blue-600 hover:underline text-sm">Blockquotes</a></li>
+                  <li><a href="#horizontal-rule" className="text-blue-600 hover:underline text-sm">Horizontal Rule</a></li>
                 </ul>
-                </nav>
+              </nav>
             </div>
           </aside>
         </div>

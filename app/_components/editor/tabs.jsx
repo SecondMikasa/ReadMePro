@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import ColumnHeader from "./column-header" 
 import { TAB } from "../../../lib/constants" 
 
@@ -27,7 +29,8 @@ const Tabs = ({
                         aria-label="Color Mode"
                         className="ml-2 mb-2 toggle-dark-mode focus:outline-none transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:transform-none p-1 relative z-10" // Added margin and padding
                     >
-                        <img
+                        <Image
+                            fill
                             className="w-auto h-6" 
                             alt={toggleState.theme === 'vs-dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                             src={`/${toggleState.img}`} 

@@ -1,31 +1,9 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useRef, useCallback, useEffect } from 'react'
 import { Editor as MonacoEditor } from "@monaco-editor/react"
 import { cn } from '../../../lib/utils'
 
-interface MobileEditorProps {
-  value: string
-  onChange: (value: string) => void
-  theme: 'light' | 'vs-dark'
-  language: string
-  placeholder?: string
-  ariaLabel?: string
-  ariaDescribedBy?: string
-  className?: string
-  showToolbar?: boolean
-  onToolbarAction?: (action: string, value?: string) => void
-}
-
-interface ToolbarButton {
-  id: string
-  label: string
-  icon: string
-  action: string
-  ariaLabel: string
-  insertText?: string
-}
-
 // Touch-optimized toolbar buttons for markdown editing
-const toolbarButtons: ToolbarButton[] = [
+const toolbarButtons = [
   {
     id: 'bold',
     label: 'B',
@@ -76,36 +54,27 @@ const toolbarButtons: ToolbarButton[] = [
   }
 ]
 
-export const MobileEditor: React.FC<MobileEditorProps> = ({
+export const MobileEditor = ({
   value,
   onChange,
   theme,
   language,
-  placeholder = "Enter markdown content here...",
-  ariaLabel = "Mobile markdown editor",
-  ariaDescribedBy,
   className,
   showToolbar = true,
   onToolbarAction
 }) => {
-  const editorRef = useRef<any>(null)
-  const [isEditorReady, setIsEditorReady] = useState(false)
+  const editorRef = useRef(null)
 
   // Handle Monaco Editor mount
-  const handleEditorMount = useCallback((editor: any) => {
+  const handleEditorMount = useCallback((editor) => {
     editorRef.current = editor
-    setIsEditorReady(true)
 
     // Focus the editor
     editor.focus()
-
-    // Add mobile-specific keyboard shortcuts
-    // Note: Monaco keyboard shortcuts will be added when Monaco is available
-    // For now, we'll handle them in the toolbar action handler
   }, [])
 
   // Handle toolbar button actions using Monaco Editor API
-  const handleToolbarAction = useCallback((action: string, insertText?: string) => {
+  const handleToolbarAction = useCallback((action, insertText) => {
     if (!editorRef.current) return
 
     const editor = editorRef.current
@@ -253,6 +222,31 @@ export const MobileEditor: React.FC<MobileEditorProps> = ({
       onToolbarAction(action, insertText)
     }
   }, [onToolbarAction])
+
+  // Add keyboard shortcuts after editor is mounted
+  // Add keyboard shortcuts after editor is mounted
+  useEffect(() => {
+    if (!editorRef.current) return
+    
+    const editor = editorRef.current
+    
+    // Add mobile-specific keyboard shortcuts
+    try {
+      editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyB, () => {
+        handleToolbarAction('bold', '**text**')
+      })
+      
+      editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyI, () => {
+        handleToolbarAction('italic', '*text*')
+      })
+      
+      editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyK, () => {
+        handleToolbarAction('link', '[link text](url)')
+      })
+    } catch (error) {
+      console.warn('Failed to add keyboard shortcuts:', error)
+    }
+  }, [handleToolbarAction])
 
   const isDark = theme === 'vs-dark'
 
