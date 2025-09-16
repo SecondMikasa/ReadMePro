@@ -10,7 +10,7 @@
     height: calc(100vh - 4.5rem);
   }
   
-  @screen md {
+  @media (min-width: 768px) {
     .drawer-height {
       height: unset;
     }
@@ -23,15 +23,20 @@
   .toggle-dark-mode {
     float: right;
   }
+
+  .monaco-editor {
+  /* Allow overscroll when editor reaches limits */
+  overscroll-behavior: auto !important;
+}
   
   @layer base {
     html {
       @apply bg-gray-50;
     }
   
-    div {
+    .editor-container {
       overscroll-behavior-y: contain;
-    }
+    } 
   
     .logo {
       font-family: "Mali", cursive;
@@ -257,3 +262,53 @@
       text-decoration: underline;
     }
   }
+
+.mobile-editor-container {
+  overscroll-behavior: auto;
+}
+
+.monaco-editor {
+  overscroll-behavior: auto !important;
+}
+
+.monaco-editor-wrapper {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.mobile-editor-container .monaco-editor {
+  touch-action: pan-y pan-x;
+}
+
+.mobile-editor-container .monaco-editor .overflow-guard {
+  overscroll-behavior: auto;
+}
+
+.mobile-editor-container .monaco-editor  {
+  overscroll-behavior: contain;
+}
+
+.monaco-scrollable-element {
+  overscroll-behavior: auto !important;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .mobile-editor-container .monaco-editor {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mobile-editor-container .monaco-editor .view-lines {
+    touch-action: manipulation;
+  }
+}
+
+@media (max-width: 768px) {
+  .monaco-editor .monaco-scrollable-element {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: auto !important;
+  }
+  
+  .monaco-editor .overflow-guard {
+    overscroll-behavior: auto !important;
+  }
+}

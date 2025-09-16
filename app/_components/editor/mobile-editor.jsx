@@ -64,14 +64,173 @@ export const MobileEditor = ({
   onToolbarAction
 }) => {
   const editorRef = useRef(null)
+  const containerRef = useRef(null)
+  const recentlyBlurredRef = useRef(0)
+  const touchStateRef = useRef({ startX: 0, startY: 0, startTime: 0, moved: false })
+  const FOCUS_COOLDOWN = 700 // ms
 
   // Handle Monaco Editor mount
   const handleEditorMount = useCallback((editor) => {
-    editorRef.current = editor
+  editorRef.current = editor
 
-    // Focus the editor
-    editor.focus()
+  // do not call editor.focus() here
+
+  const editorDomNode = editor.getDomNode()
+  const scrollableElement = editorDomNode?.querySelector('.monaco-scrollable-element')
+
+  // TAP detection: only focus on a true tap and only if cooldown passed
+  const onTouchStart = (e) => {
+    const t = e.touches ? e.touches[0] : e
+    touchStateRef.current.startX = t.clientX
+    touchStateRef.current.startY = t.clientY
+    touchStateRef.current.startTime = Date.now()
+    touchStateRef.current.moved = false
+  }
+
+  const onTouchMove = (e) => {
+    const t = e.touches ? e.touches[0] : e
+    const dx = Math.abs(t.clientX - touchStateRef.current.startX)
+    const dy = Math.abs(t.clientY - touchStateRef.current.startY)
+    if (dx > 10 || dy > 10) touchStateRef.current.moved = true
+  }
+
+  const onTouchEnd = () => {
+    const duration = Date.now() - touchStateRef.current.startTime
+    const isTap = !touchStateRef.current.moved && duration < 300
+    if (isTap && (Date.now() - recentlyBlurredRef.current) > FOCUS_COOLDOWN) {
+      try { editor.focus() } catch { /* ignore */ }
+    }
+  }
+
+  // Attach handlers on editor DOM node (not the scrollable element) to avoid re-focusing while scrolling
+  if (editorDomNode) {
+    editorDomNode.addEventListener('touchstart', onTouchStart, { passive: true })
+    editorDomNode.addEventListener('touchmove', onTouchMove, { passive: true })
+    editorDomNode.addEventListener('touchend', onTouchEnd, { passive: true })
+
+    // desktop mouse parity
+    editorDomNode.addEventListener('mousedown', onTouchStart)
+    editorDomNode.addEventListener('mousemove', onTouchMove)
+    editorDomNode.addEventListener('mouseup', onTouchEnd)
+
+    // store cleanup
+    editor._tapFocusCleanup = () => {
+      editorDomNode.removeEventListener('touchstart', onTouchStart)
+      editorDomNode.removeEventListener('touchmove', onTouchMove)
+      editorDomNode.removeEventListener('touchend', onTouchEnd)
+      editorDomNode.removeEventListener('mousedown', onTouchStart)
+      editorDomNode.removeEventListener('mousemove', onTouchMove)
+      editorDomNode.removeEventListener('mouseup', onTouchEnd)
+    }
+  }
+
+  // track blur to set cooldown so user-dismiss hides keyboard reliably
+  if (typeof editor.onDidBlurEditorWidget === 'function') {
+    const disp = editor.onDidBlurEditorWidget(() => {
+      recentlyBlurredRef.current = Date.now()
+    })
+    editor._blurDisp = disp
+  } else {
+    // fallback: listen to focusout on DOM
+    const onFocusOut = () => { recentlyBlurredRef.current = Date.now() }
+    editorDomNode?.addEventListener('focusout', onFocusOut)
+    editor._focusOutCleanup = () => editorDomNode?.removeEventListener('focusout', onFocusOut)
+  }
+    
+    if (scrollableElement) {
+      let touchStartY = 0
+
+      const handleTouchStart = (e) => {
+        touchStartY = e.touches[0].clientY
+      }
+
+      const handleTouchMove = (e) => {
+        const touchY = e.touches[0].clientY
+        const deltaY = touchStartY - touchY
+
+        // Get editor scroll information
+        const scrollTop = editor.getScrollTop()
+        const scrollHeight = editor.getScrollHeight()
+        const clientHeight = scrollableElement.clientHeight
+
+        // Check if editor can scroll in the direction user is trying to scroll
+        const canScrollUp = scrollTop > 0
+        const canScrollDown = scrollTop < (scrollHeight - clientHeight)
+        
+        // Determine if we should let the editor handle this scroll
+        const shouldScrollUp = deltaY < 0 && canScrollUp
+        const shouldScrollDown = deltaY > 0 && canScrollDown
+
+        if (shouldScrollUp || shouldScrollDown) {
+          // Editor can handle this scroll direction
+          // Let Monaco handle the scroll
+          return
+        } else {
+          // Editor can't scroll further in this direction
+          // Prevent the event to allow page scrolling
+          if (Math.abs(deltaY) > 10) { // Add threshold to avoid accidental triggers
+            e.preventDefault()
+            e.stopPropagation()
+            
+            // Manually trigger page scroll
+            const pageScrollDelta = deltaY * 0.5 // Adjust scroll speed
+            window.scrollBy(0, pageScrollDelta)
+          }
+        }
+      }
+
+      const handleTouchEnd = () => {
+        // Touch end handler - no specific action needed
+      }
+
+      // Add event listeners with proper options
+      scrollableElement.addEventListener('touchstart', handleTouchStart, { passive: true })
+      scrollableElement.addEventListener('touchmove', handleTouchMove, { passive: false })
+      scrollableElement.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+      // Also add wheel event handling for better desktop experience
+      const handleWheel = (e) => {
+        const scrollTop = editor.getScrollTop()
+        const scrollHeight = editor.getScrollHeight()
+        const clientHeight = scrollableElement.clientHeight
+
+        const canScrollUp = scrollTop > 0
+        const canScrollDown = scrollTop < (scrollHeight - clientHeight)
+        
+        const isScrollingUp = e.deltaY < 0
+        const isScrollingDown = e.deltaY > 0
+
+        if ((isScrollingUp && !canScrollUp) || (isScrollingDown && !canScrollDown)) {
+          // Editor can't scroll further, allow page scroll
+          e.stopPropagation()
+          return true
+        }
+      }
+
+      scrollableElement.addEventListener('wheel', handleWheel, { passive: false })
+
+      // Store cleanup function
+      editor._scrollCleanup = () => {
+        scrollableElement.removeEventListener('touchstart', handleTouchStart)
+        scrollableElement.removeEventListener('touchmove', handleTouchMove)
+        scrollableElement.removeEventListener('touchend', handleTouchEnd)
+        scrollableElement.removeEventListener('wheel', handleWheel)
+      }
+    }
   }, [])
+
+  // Cleanup scroll handlers
+  useEffect(() => {
+  return () => {
+    const ed = editorRef.current
+    if (ed) {
+      if (ed._scrollCleanup) ed._scrollCleanup()
+      if (ed._tapFocusCleanup) ed._tapFocusCleanup()
+      if (ed._blurDisp) ed._blurDisp.dispose()
+      if (ed._focusOutCleanup) ed._focusOutCleanup()
+    }
+  }
+}, [])
 
   // Handle toolbar button actions using Monaco Editor API
   const handleToolbarAction = useCallback((action, insertText) => {
@@ -224,7 +383,6 @@ export const MobileEditor = ({
   }, [onToolbarAction])
 
   // Add keyboard shortcuts after editor is mounted
-  // Add keyboard shortcuts after editor is mounted
   useEffect(() => {
     if (!editorRef.current) return
     
@@ -251,7 +409,10 @@ export const MobileEditor = ({
   const isDark = theme === 'vs-dark'
 
   return (
-    <div className={cn("relative w-full h-full flex flex-col", className)}>
+    <div 
+      ref={containerRef}
+      className={cn("relative w-full h-full flex flex-col", className)}
+    >
       {/* Touch-optimized toolbar */}
       {showToolbar && (
         <div
