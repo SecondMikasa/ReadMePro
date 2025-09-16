@@ -27,11 +27,11 @@ const Tabs = ({
                     <button
                         onClick={toggleTheme}
                         aria-label="Color Mode"
-                        className="ml-2 mb-2 toggle-dark-mode focus:outline-none transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:transform-none p-1 relative z-10" // Added margin and padding
+                        className="ml-2 mb-2 toggle-dark-mode focus:outline-none transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:transform-none relative z-10 w-12 h-12" // Added margin and padding
                     >
                         <Image
                             fill
-                            className="w-auto h-6" 
+                            className="w-auto" 
                             alt={toggleState.theme === 'vs-dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                             src={`/${toggleState.img}`} 
                         />

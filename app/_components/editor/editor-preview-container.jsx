@@ -80,30 +80,28 @@ const EditorPreviewContainer = ({
                         {
                             !shouldUseTabs ? (
                                 <ColumnHeader.Heading>
-                                    Editor
-                                    {/* Show toggle only if a section is selected for editing */}
-                                    {
-                                        focusedSectionSlug ? (
-                                            <button
-                                                onClick={toggleTheme}
-                                                aria-label="Color Mode"
-                                                className="toggle-dark-mode focus:outline-none transition transform hover:-translate-y-1 motion-reduce:transition-none motion-reduce:transform-none p-1"
-                                            >
-                                                <img
-                                                    className="w-auto h-6"
-                                                    alt={toggleState.theme === 'vs-dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                                                    src={`/${toggleState.img}`}
-                                                />
-                                            </button>
-                                        ) : (
-                                            <div className="w-auto h-8 mr-2"></div>
-                                            // Placeholder for alignment
-                                        )}
+                                <div className="flex items-baseline justify-between w-full">
+                                    <span className="text-lg font-semibold">Editor</span>
+                                    {focusedSectionSlug ? (
+                                    <button
+                                        onClick={toggleTheme}
+                                        aria-label="Color Mode"
+                                        className="toggle-dark-mode w-6 h-6 md:w-8 md:h-8"
+                                    >
+                                        <img
+                                        alt={toggleState.theme === 'vs-dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                        src={`/${toggleState.img}`}
+                                        className="w-full h-full object-contain"
+                                        />
+                                    </button>
+                                    ) : (
+                                    <div className="w-6 h-6 mr-2"></div>
+                                    )}
+                                </div>
                                 </ColumnHeader.Heading>
                             ) :
                                 null
                         }
-
                         {/* Make EditorColumn fill its container */}
                         <div className="flex-1 overflow-hidden">
                             <EditorColumn

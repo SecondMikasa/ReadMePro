@@ -4,54 +4,12 @@ import { cn } from '../../../lib/utils'
 
 // Touch-optimized toolbar buttons for markdown editing
 const toolbarButtons = [
-  {
-    id: 'bold',
-    label: 'B',
-    icon: '𝐁',
-    action: 'bold',
-    ariaLabel: 'Make text bold',
-    insertText: '**text**'
-  },
-  {
-    id: 'italic',
-    label: 'I',
-    icon: '𝐼',
-    action: 'italic',
-    ariaLabel: 'Make text italic',
-    insertText: '*text*'
-  },
-  {
-    id: 'header',
-    label: 'H',
-    icon: 'H',
-    action: 'header',
-    ariaLabel: 'Insert header',
-    insertText: '# Header'
-  },
-  {
-    id: 'list',
-    label: '•',
-    icon: '•',
-    action: 'list',
-    ariaLabel: 'Insert bullet list',
-    insertText: '- List item'
-  },
-  {
-    id: 'code',
-    label: '<>',
-    icon: '</>',
-    action: 'code',
-    ariaLabel: 'Insert code block',
-    insertText: '`code`'
-  },
-  {
-    id: 'link',
-    label: '🔗',
-    icon: '🔗',
-    action: 'link',
-    ariaLabel: 'Insert link',
-    insertText: '[link text](url)'
-  }
+  { id: 'bold', label: 'B', icon: '𝐁', action: 'bold', ariaLabel: 'Make text bold', insertText: '**text**' },
+  { id: 'italic', label: 'I', icon: '𝐼', action: 'italic', ariaLabel: 'Make text italic', insertText: '*text*' },
+  { id: 'header', label: 'H', icon: 'H', action: 'header', ariaLabel: 'Insert header', insertText: '# Header' },
+  { id: 'list', label: '•', icon: '•', action: 'list', ariaLabel: 'Insert bullet list', insertText: '- List item' },
+  { id: 'code', label: '<>', icon: '</>', action: 'code', ariaLabel: 'Insert code block', insertText: '`code`' },
+  { id: 'link', label: '🔗', icon: '🔗', action: 'link', ariaLabel: 'Insert link', insertText: '[link text](url)' }
 ]
 
 export const MobileEditor = ({
@@ -64,16 +22,162 @@ export const MobileEditor = ({
   onToolbarAction
 }) => {
   const editorRef = useRef(null)
+  const monacoRef = useRef(null)
+  const containerRef = useRef(null)
+  const recentlyBlurredRef = useRef(0)
+  const touchStateRef = useRef({ startX: 0, startY: 0, startTime: 0, moved: false })
+  const FOCUS_COOLDOWN = 700 // ms
 
-  // Handle Monaco Editor mount
-  const handleEditorMount = useCallback((editor) => {
+  // Handle Monaco Editor mount and unified touch handling
+  const handleEditorMount = useCallback((editor, monaco) => {
     editorRef.current = editor
+    monacoRef.current = monaco
 
-    // Focus the editor
-    editor.focus()
+    const editorDomNode = typeof editor.getDomNode === 'function' ? editor.getDomNode() : null
+    const scrollableElement = editorDomNode?.querySelector('.monaco-scrollable-element')
+
+    // TAP detection handlers (editor-level)
+    const onTapStart = (e) => {
+      const t = e.touches ? e.touches[0] : e
+      touchStateRef.current.startX = t.clientX
+      touchStateRef.current.startY = t.clientY
+      touchStateRef.current.startTime = Date.now()
+      touchStateRef.current.moved = false
+    }
+
+    const onTapMove = (e) => {
+      const t = e.touches ? e.touches[0] : e
+      const dx = Math.abs(t.clientX - touchStateRef.current.startX)
+      const dy = Math.abs(t.clientY - touchStateRef.current.startY)
+      if (dx > 10 || dy > 10) touchStateRef.current.moved = true
+    }
+
+    const onTapEnd = () => {
+      const duration = Date.now() - touchStateRef.current.startTime
+      const isTap = !touchStateRef.current.moved && duration < 300
+      if (isTap && (Date.now() - recentlyBlurredRef.current) > FOCUS_COOLDOWN) {
+        try { editor.focus() } catch { /* ignore */ }
+      }
+    }
+
+    // Attach editor-level (tap) handlers
+    if (editorDomNode) {
+      editorDomNode.addEventListener('touchstart', onTapStart, { passive: true })
+      editorDomNode.addEventListener('touchmove', onTapMove, { passive: true })
+      editorDomNode.addEventListener('touchend', onTapEnd, { passive: true })
+
+      // mouse parity
+      editorDomNode.addEventListener('mousedown', onTapStart)
+      editorDomNode.addEventListener('mousemove', onTapMove)
+      editorDomNode.addEventListener('mouseup', onTapEnd)
+
+      // cleanup for tap handlers
+      editor._tapFocusCleanup = () => {
+        editorDomNode.removeEventListener('touchstart', onTapStart)
+        editorDomNode.removeEventListener('touchmove', onTapMove)
+        editorDomNode.removeEventListener('touchend', onTapEnd)
+        editorDomNode.removeEventListener('mousedown', onTapStart)
+        editorDomNode.removeEventListener('mousemove', onTapMove)
+        editorDomNode.removeEventListener('mouseup', onTapEnd)
+      }
+    }
+
+    // Scroll handling inside the Monaco scrollable element
+    if (scrollableElement) {
+      let touchStartY = 0
+
+      const onScrollTouchStart = (e) => {
+        touchStartY = e.touches[0].clientY
+      }
+
+      const onScrollTouchMove = (e) => {
+        const touchY = e.touches[0].clientY
+        const deltaY = touchStartY - touchY
+
+        const scrollTop = editor.getScrollTop()
+        const scrollHeight = editor.getScrollHeight()
+        const clientHeight = scrollableElement.clientHeight
+
+        const canScrollUp = scrollTop > 0
+        const canScrollDown = scrollTop < (scrollHeight - clientHeight)
+
+        const shouldScrollUp = deltaY < 0 && canScrollUp
+        const shouldScrollDown = deltaY > 0 && canScrollDown
+
+        if (shouldScrollUp || shouldScrollDown) {
+          // Let Monaco handle the scroll
+          return
+        } else {
+          // Allow page scrolling when editor can't scroll further
+          if (Math.abs(deltaY) > 10) {
+            e.preventDefault()
+            e.stopPropagation()
+            const pageScrollDelta = deltaY * 0.5
+            window.scrollBy(0, pageScrollDelta)
+          }
+        }
+      }
+
+      const onScrollTouchEnd = () => { /* no-op */ }
+
+      const onWheel = (e) => {
+        const scrollTop = editor.getScrollTop()
+        const scrollHeight = editor.getScrollHeight()
+        const clientHeight = scrollableElement.clientHeight
+
+        const canScrollUp = scrollTop > 0
+        const canScrollDown = scrollTop < (scrollHeight - clientHeight)
+
+        const isScrollingUp = e.deltaY < 0
+        const isScrollingDown = e.deltaY > 0
+
+        if ((isScrollingUp && !canScrollUp) || (isScrollingDown && !canScrollDown)) {
+          // Let page handle the wheel when editor can't scroll further
+          e.stopPropagation()
+          return true
+        }
+      }
+
+      scrollableElement.addEventListener('touchstart', onScrollTouchStart, { passive: true })
+      scrollableElement.addEventListener('touchmove', onScrollTouchMove, { passive: false })
+      scrollableElement.addEventListener('touchend', onScrollTouchEnd, { passive: true })
+      scrollableElement.addEventListener('wheel', onWheel, { passive: false })
+
+      editor._scrollCleanup = () => {
+        scrollableElement.removeEventListener('touchstart', onScrollTouchStart)
+        scrollableElement.removeEventListener('touchmove', onScrollTouchMove)
+        scrollableElement.removeEventListener('touchend', onScrollTouchEnd)
+        scrollableElement.removeEventListener('wheel', onWheel)
+      }
+    }
+
+    // Track blur to set cooldown so user-dismiss hides keyboard reliably
+    if (typeof editor.onDidBlurEditorWidget === 'function') {
+      const disp = editor.onDidBlurEditorWidget(() => {
+        recentlyBlurredRef.current = Date.now()
+      })
+      editor._blurDisp = disp
+    } else {
+      const onFocusOut = () => { recentlyBlurredRef.current = Date.now() }
+      editorDomNode?.addEventListener('focusout', onFocusOut)
+      editor._focusOutCleanup = () => editorDomNode?.removeEventListener('focusout', onFocusOut)
+    }
   }, [])
 
-  // Handle toolbar button actions using Monaco Editor API
+  // Cleanup scroll and tap handlers when unmounting
+  useEffect(() => {
+    return () => {
+      const ed = editorRef.current
+      if (ed) {
+        if (ed._scrollCleanup) ed._scrollCleanup()
+        if (ed._tapFocusCleanup) ed._tapFocusCleanup()
+        if (ed._blurDisp && typeof ed._blurDisp.dispose === 'function') ed._blurDisp.dispose()
+        if (ed._focusOutCleanup) ed._focusOutCleanup()
+      }
+    }
+  }, [])
+
+  // Toolbar actions using Monaco Editor API
   const handleToolbarAction = useCallback((action, insertText) => {
     if (!editorRef.current) return
 
@@ -126,7 +230,7 @@ export const MobileEditor = ({
         }
         break
 
-      case 'header':
+      case 'header': {
         const lineStart = { lineNumber: selection.startLineNumber, column: 1 }
         const lineEnd = { lineNumber: selection.startLineNumber, column: 1 }
         newText = '# '
@@ -140,9 +244,11 @@ export const MobileEditor = ({
           text: newText
         }])
         editor.setPosition({ lineNumber: selection.startLineNumber, column: selection.startColumn + 2 })
+        if (onToolbarAction) onToolbarAction(action, insertText)
         return
+      }
 
-      case 'list':
+      case 'list': {
         const listLineStart = { lineNumber: selection.startLineNumber, column: 1 }
         const listLineEnd = { lineNumber: selection.startLineNumber, column: 1 }
         newText = '- '
@@ -156,7 +262,9 @@ export const MobileEditor = ({
           text: newText
         }])
         editor.setPosition({ lineNumber: selection.startLineNumber, column: selection.startColumn + 2 })
+        if (onToolbarAction) onToolbarAction(action, insertText)
         return
+      }
 
       case 'code':
         if (selectedText) {
@@ -202,47 +310,26 @@ export const MobileEditor = ({
         return
     }
 
-    // Execute the edit for cases that need text replacement
     if (newText) {
-      editor.executeEdits('mobile-toolbar', [{
-        range: selection,
-        text: newText
-      }])
-
-      // Set new selection if provided
-      if (newSelection) {
-        editor.setSelection(newSelection)
-      }
+      editor.executeEdits('mobile-toolbar', [{ range: selection, text: newText }])
+      if (newSelection) editor.setSelection(newSelection)
     }
 
     editor.focus()
-
-    // Call external handler if provided
-    if (onToolbarAction) {
-      onToolbarAction(action, insertText)
-    }
+    if (onToolbarAction) onToolbarAction(action, insertText)
   }, [onToolbarAction])
 
   // Add keyboard shortcuts after editor is mounted
-  // Add keyboard shortcuts after editor is mounted
   useEffect(() => {
-    if (!editorRef.current) return
-    
+    if (!editorRef.current || !monacoRef.current) return
+
     const editor = editorRef.current
-    
-    // Add mobile-specific keyboard shortcuts
+    const monaco = monacoRef.current
+
     try {
-      editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyB, () => {
-        handleToolbarAction('bold', '**text**')
-      })
-      
-      editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyI, () => {
-        handleToolbarAction('italic', '*text*')
-      })
-      
-      editor.addCommand(editor.KeyMod.CtrlCmd | editor.KeyCode.KeyK, () => {
-        handleToolbarAction('link', '[link text](url)')
-      })
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyB, () => handleToolbarAction('bold', '**text**'))
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyI, () => handleToolbarAction('italic', '*text*'))
+      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK, () => handleToolbarAction('link', '[link text](url)'))
     } catch (error) {
       console.warn('Failed to add keyboard shortcuts:', error)
     }
@@ -251,7 +338,10 @@ export const MobileEditor = ({
   const isDark = theme === 'vs-dark'
 
   return (
-    <div className={cn("relative w-full h-full flex flex-col", className)}>
+    <div 
+      ref={containerRef}
+      className={cn("relative w-full h-full flex flex-col", className)}
+    >
       {/* Touch-optimized toolbar */}
       {showToolbar && (
         <div
@@ -296,11 +386,11 @@ export const MobileEditor = ({
           value={value}
           onChange={(newValue) => onChange(newValue || '')}
           onMount={handleEditorMount}
-          loading={
+          loading={(
             <div className="p-4 text-gray-400">
               Loading Editor...
             </div>
-          }
+          )}
           options={{
             minimap: { enabled: false },
             lineNumbers: 'off',
@@ -308,10 +398,7 @@ export const MobileEditor = ({
             scrollBeyondLastLine: false,
             automaticLayout: true,
             fontSize: 14,
-            padding: {
-              top: 10,
-              bottom: 10
-            },
+            padding: { top: 10, bottom: 10 },
             overviewRulerLanes: 0,
             overviewRulerBorder: false,
             scrollbar: {
@@ -327,3 +414,5 @@ export const MobileEditor = ({
     </div>
   )
 }
+
+export default MobileEditor
