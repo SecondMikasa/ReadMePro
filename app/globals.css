@@ -20,10 +20,6 @@
     width: 80vw;
   }
   
-  .toggle-dark-mode {
-    float: right;
-  }
-
   .monaco-editor {
   /* Allow overscroll when editor reaches limits */
   overscroll-behavior: auto !important;
@@ -310,5 +306,10 @@
   
   .monaco-editor .overflow-guard {
     overscroll-behavior: auto !important;
+  }
+
+  .toggle-dark-mode {
+    width: 24px;
+    height: 24px;
   }
 }
